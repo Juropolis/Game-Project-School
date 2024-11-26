@@ -9,12 +9,22 @@ from WallClass import Wall
 #variable initialising
 colour = (254, 36, 82)
 
+#This is used for the dash ability
 playerFacing = "right"
-
 dashCooldown = 0
 dashCooldownTime = 1400
 
+#draws the screen excluding the player 
+def drawBlankScreen(a, b, c):
+    screen.fill((a, b, c))
+    pygame.draw.rect(screen, colour, pygame.Rect(0,0,0,0))
+    pygame.display.flip()
 
+#draws the screen including the player
+def drawScreen(a, b, c):
+    screen.fill((a, b, c,))
+    pygame.draw.rect(screen, colour, player.rect)
+    pygame.display.flip()
 
 
 #start pygame
@@ -45,12 +55,24 @@ while running == True:
         if event.type == pygame.QUIT:
             running = False
     
+    #sets to current game time
     currentTime = pygame.time.get_ticks()
     
+    #loop for menus
     if gameState == "menus":
         print("hehe menus")
-        gameState = "playing"
+        drawBlankScreen(255, 255, 255)
+        while gameState == "menus":
+           userInput = pygame.key.get_pressed()
+           if userInput[pygame.K_RETURN]:
+                gameState = "playing"
+           drawBlankScreen(255, 255, 255)
+           for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+           
 
+    #loop for gameplay
     if gameState == "playing":
 
          #player movement
@@ -83,80 +105,71 @@ while running == True:
             else:
                 player.rect.y = height - 30
 
+        #dash ability
         if userInput[pygame.K_SPACE] and currentTime > dashCooldown:
+            
             if playerFacing == "left":
+                #Loop stops player position being reset multiple times
                 dashLoop = True
                 for i in range(1,20):
                     if player.rect.x >= 10:
                         player.move(-10, 0, walls)
-                        screen.fill((0, 0, 0,))
-                        pygame.draw.rect(screen, colour, player.rect)
-                        pygame.display.flip()
+                        drawScreen(0, 0, 0)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.x = 0
                         dashLoop = False
-                        screen.fill((0, 0, 0,))
-                        pygame.draw.rect(screen, colour, player.rect)
-                        pygame.display.flip()
+                        drawScreen(0, 0, 0)
                         time.sleep(0.01)
+            
             if playerFacing == "right":
+                #Loop stops player position being reset multiple times
                 dashLoop = True
                 for i in range(1,20):
                     if player.rect.x <= width - 40:
                         player.move(10, 0, walls)
-                        screen.fill((0, 0, 0,))
-                        pygame.draw.rect(screen, colour, player.rect)
-                        pygame.display.flip()
+                        drawScreen(0, 0, 0)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.x = width - 30
                         dashLoop = False
-                        screen.fill((0, 0, 0,))
-                        pygame.draw.rect(screen, colour, player.rect)
-                        pygame.display.flip()
+                        drawScreen(0, 0, 0)
                         time.sleep(0.01)
+            
             if playerFacing == "up":
+                #Loop stops player position being reset multiple times
                 dashLoop = True
                 for i in range(1,20):
                     if player.rect.y >= 10:
                         player.move(0, -10, walls)
-                        screen.fill((0, 0, 0,))
-                        pygame.draw.rect(screen, colour, player.rect)
-                        pygame.display.flip()
+                        drawScreen(0, 0, 0)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.y = 0
                         dashLoop = False
-                        screen.fill((0, 0, 0,))
-                        pygame.draw.rect(screen, colour, player.rect)
-                        pygame.display.flip()
+                        drawScreen(0, 0, 0)
                         time.sleep(0.01)
+            
             if playerFacing == "down":
+                #Loop stops player position being reset multiple times
                 dashLoop = True
                 for i in range(1,20):
                     if player.rect.y <= height - 40:
                         player.move(0, 10, walls)
-                        screen.fill((0, 0, 0,))
-                        pygame.draw.rect(screen, colour, player.rect)
-                        pygame.display.flip()
+                        drawScreen(0, 0, 0)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.y = height - 30
                         dashLoop = False
-                        screen.fill((0, 0, 0,))
-                        pygame.draw.rect(screen, colour, player.rect)
-                        pygame.display.flip()
+                        drawScreen(0, 0, 0)
                         time.sleep(0.01)
                 
-
+            #sets cooldown time
             dashCooldown = currentTime + dashCooldownTime
         
 
     #draw screen
-    screen.fill((0, 0, 0,))
-    pygame.draw.rect(screen, colour, player.rect)
-    pygame.display.flip()
+    drawScreen(0, 0, 0)
 
 
 
