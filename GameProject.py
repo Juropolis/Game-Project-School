@@ -8,6 +8,10 @@ from WallClass import Wall
 
 #variable initialising
 colour = (254, 36, 82)
+wallColour = (155, 155, 155)
+currentScore = 0
+gameState = "menus"
+currentLevel = 0
 
 #This is used for the dash ability
 playerFacing = "right"
@@ -18,12 +22,15 @@ dashCooldownTime = 1400
 def drawBlankScreen(a, b, c):
     screen.fill((a, b, c))
     pygame.draw.rect(screen, colour, pygame.Rect(0,0,0,0))
-    pygame.display.flip()
+    pygame.display.flip() 
 
 #draws the screen including the player
-def drawScreen(a, b, c):
+def drawScreen(a, b, c, walls):
     screen.fill((a, b, c,))
     pygame.draw.rect(screen, colour, player.rect)
+    for wall in walls:
+        pygame.draw.rect(screen,wallColour,wall.rect) 
+    pygame.draw.rect(screen,(255,0,0),end_rect)
     pygame.display.flip()
 
 
@@ -33,17 +40,61 @@ pygame.init()
 
 #set up display
 pygame.display.set_caption("Upgraded")
-width = 768
-height = 435
+width = 1000
+height = 560
 screen = pygame.display.set_mode((width, height))
 
 #initiate classes
 clock = pygame.time.Clock()
 player = Player() 
 walls = []
-wallColour = (255, 255, 255)
-currentScore = 0
-gameState = "menus"
+
+
+#Levels drawn here
+# W means wall, E means exit
+levels = [[
+    "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+    "W                                                W",
+    "W                                         EEE    W",
+    "W                                         EEE    W",
+    "W                                         EEE    W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "W                                                W",
+    "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+]]
+
+
+#draws first level [Without this first level wont appear until after delay]
+x = y = 0
+for row in levels[currentLevel]:
+    for col in row:
+        if col == "W":
+            walls.append(Wall(x, y))
+        if col == "E":
+            end_rect = pygame.Rect(x,y,20,20)
+        x += 20
+    y += 20
+    x = 0
 
 #start game
 running = True
@@ -114,12 +165,12 @@ while running == True:
                 for i in range(1,20):
                     if player.rect.x >= 10:
                         player.move(-10, 0, walls)
-                        drawScreen(0, 0, 0)
+                        drawScreen(0, 0, 0, walls)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.x = 0
                         dashLoop = False
-                        drawScreen(0, 0, 0)
+                        drawScreen(0, 0, 0, walls)
                         time.sleep(0.01)
             
             if playerFacing == "right":
@@ -128,12 +179,12 @@ while running == True:
                 for i in range(1,20):
                     if player.rect.x <= width - 40:
                         player.move(10, 0, walls)
-                        drawScreen(0, 0, 0)
+                        drawScreen(0, 0, 0, walls)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.x = width - 30
                         dashLoop = False
-                        drawScreen(0, 0, 0)
+                        drawScreen(0, 0, 0, walls)
                         time.sleep(0.01)
             
             if playerFacing == "up":
@@ -142,12 +193,12 @@ while running == True:
                 for i in range(1,20):
                     if player.rect.y >= 10:
                         player.move(0, -10, walls)
-                        drawScreen(0, 0, 0)
+                        drawScreen(0, 0, 0, walls)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.y = 0
                         dashLoop = False
-                        drawScreen(0, 0, 0)
+                        drawScreen(0, 0, 0, walls)
                         time.sleep(0.01)
             
             if playerFacing == "down":
@@ -156,20 +207,23 @@ while running == True:
                 for i in range(1,20):
                     if player.rect.y <= height - 40:
                         player.move(0, 10, walls)
-                        drawScreen(0, 0, 0)
+                        drawScreen(0, 0, 0, walls)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.y = height - 30
                         dashLoop = False
-                        drawScreen(0, 0, 0)
+                        drawScreen(0, 0, 0, walls)
                         time.sleep(0.01)
-                
+
             #sets cooldown time
             dashCooldown = currentTime + dashCooldownTime
         
+        if player.rect.colliderect(end_rect):
+                print("collisions work pookie")
 
+        
     #draw screen
-    drawScreen(0, 0, 0)
+    drawScreen(0, 0, 0, walls)
 
 
 
