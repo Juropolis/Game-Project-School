@@ -5,6 +5,7 @@ import time
 import random
 from PlayerClass import Player
 from WallClass import Wall
+from LevelFile import levels
 
 #variable initialising
 colour = (254, 36, 82)
@@ -40,48 +41,14 @@ pygame.init()
 
 #set up display
 pygame.display.set_caption("Upgraded")
-width = 1000
-height = 560
+width = 1050
+height = 600
 screen = pygame.display.set_mode((width, height))
 
 #initiate classes
 clock = pygame.time.Clock()
 player = Player() 
 walls = []
-
-
-#Levels drawn here
-# W means wall, E means exit
-levels = [[
-    "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-    "W                                                W",
-    "W                                         EEE    W",
-    "W                                         EEE    W",
-    "W                                         EEE    W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "W                                                W",
-    "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-]]
 
 
 #draws first level [Without this first level wont appear until after delay]
@@ -91,9 +58,9 @@ for row in levels[currentLevel]:
         if col == "W":
             walls.append(Wall(x, y))
         if col == "E":
-            end_rect = pygame.Rect(x,y,20,20)
-        x += 20
-    y += 20
+            end_rect = pygame.Rect(x,y,30,30)
+        x += 30
+    y += 30
     x = 0
 
 #start game
@@ -219,9 +186,22 @@ while running == True:
             dashCooldown = currentTime + dashCooldownTime
         
         if player.rect.colliderect(end_rect):
-                print("collisions work pookie")
+            if currentLevel < 1:
+                currentLevel = currentLevel + 1
+                x = y = 0
+                for row in levels[currentLevel]:
+                    for col in row:
+                        if col == "W":
+                            walls.append(Wall(x, y))
+                        if col == "E":
+                            end_rect = pygame.Rect(x,y,30,30)
+                        x += 30
+                    y += 30
+                    x = 0
+            player.rect.left = 30
+            player.rect.top = 30
 
-        
+   
     #draw screen
     drawScreen(0, 0, 0, walls)
 
