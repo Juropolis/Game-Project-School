@@ -13,6 +13,8 @@ wallColour = (155, 155, 155)
 currentScore = 0
 gameState = "menus"
 currentLevel = 0
+#holds the current amount of levels in the list
+maxLevel = len(levels) - 1
 
 #This is used for the dash ability
 playerFacing = "right"
@@ -78,7 +80,6 @@ while running == True:
     
     #loop for menus
     if gameState == "menus":
-        print("hehe menus")
         drawBlankScreen(255, 255, 255)
         while gameState == "menus":
            userInput = pygame.key.get_pressed()
@@ -185,8 +186,10 @@ while running == True:
             #sets cooldown time
             dashCooldown = currentTime + dashCooldownTime
         
+        #detects if player touches the exit door
         if player.rect.colliderect(end_rect):
-            if currentLevel < 1:
+            #stops code trying to load a non existent level
+            if currentLevel < maxLevel:
                 currentLevel = currentLevel + 1
                 x = y = 0
                 for row in levels[currentLevel]:
