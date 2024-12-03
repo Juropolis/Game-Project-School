@@ -1,6 +1,5 @@
 import pygame
 
-
 #initialise wall class
 class Wall(object):
     def __init__(self, wx, wy):

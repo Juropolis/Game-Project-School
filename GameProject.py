@@ -6,10 +6,12 @@ import random
 from PlayerClass import Player
 from WallClass import Wall
 from LevelFile import levels
+from WaterClass import Water
 
 #variable initialising
 colour = (254, 36, 82)
 wallColour = (155, 155, 155)
+waterColour = (200, 250, 241)
 currentScore = 0
 gameState = "menus"
 currentLevel = 0
@@ -28,11 +30,13 @@ def drawBlankScreen(a, b, c):
     pygame.display.flip() 
 
 #draws the screen including the player
-def drawScreen(a, b, c, walls):
+def drawScreen(a, b, c, walls, waters):
     screen.fill((a, b, c,))
     pygame.draw.rect(screen, colour, player.rect)
     for wall in walls:
         pygame.draw.rect(screen,wallColour,wall.rect) 
+    for water in waters:
+        pygame.draw.rect(screen,waterColour,water.rect)
     pygame.draw.rect(screen,(255,0,0),end_rect)
     pygame.display.flip()
 
@@ -51,6 +55,7 @@ screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 player = Player() 
 walls = []
+waters = []
 
 
 #draws first level [Without this first level wont appear until after delay]
@@ -61,6 +66,8 @@ for row in levels[currentLevel]:
             walls.append(Wall(x, y))
         if col == "E":
             end_rect = pygame.Rect(x,y,30,30)
+        if col == "B":
+            waters.append(Water(x, y))
         x += 30
     y += 30
     x = 0
@@ -99,28 +106,28 @@ while running == True:
         if userInput[pygame.K_a]:
             playerFacing = "left"
             if player.rect.x >= 3:
-                player.move(-3, 0, walls)
+                player.move(-3, 0, walls, waters)
             else: 
                 player.rect.x = 0
     
         if userInput[pygame.K_d]:
             playerFacing = "right"
             if player.rect.x <= width - 33:
-                player.move(3, 0, walls)
+                player.move(3, 0, walls, waters)
             else:
                 player.rect.x = width - 30
 
         if userInput[pygame.K_w]:
             playerFacing = "up"
             if player.rect.y >= 3:
-                player.move(0, -3, walls)
+                player.move(0, -3, walls, waters)
             else:
                 player.rect.y = 0
     
         if userInput[pygame.K_s]:
             playerFacing = "down"
             if player.rect.y <= height - 33:
-                player.move(0, 3, walls)
+                player.move(0, 3, walls, waters)
             else:
                 player.rect.y = height - 30
 
@@ -132,13 +139,13 @@ while running == True:
                 dashLoop = True
                 for i in range(1,20):
                     if player.rect.x >= 10:
-                        player.move(-10, 0, walls)
-                        drawScreen(0, 0, 0, walls)
+                        player.move(-10, 0, walls, waters)
+                        drawScreen(0, 0, 0, walls, waters)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.x = 0
                         dashLoop = False
-                        drawScreen(0, 0, 0, walls)
+                        drawScreen(0, 0, 0, walls, waters)
                         time.sleep(0.01)
             
             if playerFacing == "right":
@@ -146,13 +153,13 @@ while running == True:
                 dashLoop = True
                 for i in range(1,20):
                     if player.rect.x <= width - 40:
-                        player.move(10, 0, walls)
-                        drawScreen(0, 0, 0, walls)
+                        player.move(10, 0, walls, waters)
+                        drawScreen(0, 0, 0, walls, waters)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.x = width - 30
                         dashLoop = False
-                        drawScreen(0, 0, 0, walls)
+                        drawScreen(0, 0, 0, walls, waters)
                         time.sleep(0.01)
             
             if playerFacing == "up":
@@ -160,13 +167,13 @@ while running == True:
                 dashLoop = True
                 for i in range(1,20):
                     if player.rect.y >= 10:
-                        player.move(0, -10, walls)
-                        drawScreen(0, 0, 0, walls)
+                        player.move(0, -10, walls, waters)
+                        drawScreen(0, 0, 0, walls, waters)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.y = 0
                         dashLoop = False
-                        drawScreen(0, 0, 0, walls)
+                        drawScreen(0, 0, 0, walls, waters)
                         time.sleep(0.01)
             
             if playerFacing == "down":
@@ -174,13 +181,13 @@ while running == True:
                 dashLoop = True
                 for i in range(1,20):
                     if player.rect.y <= height - 40:
-                        player.move(0, 10, walls)
-                        drawScreen(0, 0, 0, walls)
+                        player.move(0, 10, walls, waters)
+                        drawScreen(0, 0, 0, walls, waters)
                         time.sleep(0.01)
                     elif dashLoop == True:
                         player.rect.y = height - 30
                         dashLoop = False
-                        drawScreen(0, 0, 0, walls)
+                        drawScreen(0, 0, 0, walls, waters)
                         time.sleep(0.01)
 
             #sets cooldown time
@@ -191,6 +198,7 @@ while running == True:
             #stops code trying to load a non existent level
             if currentLevel < maxLevel:
                 currentLevel = currentLevel + 1
+                del walls[:]
                 x = y = 0
                 for row in levels[currentLevel]:
                     for col in row:
@@ -198,15 +206,17 @@ while running == True:
                             walls.append(Wall(x, y))
                         if col == "E":
                             end_rect = pygame.Rect(x,y,30,30)
+                        if col == "B":
+                            waters.append(Water(x, y))
                         x += 30
                     y += 30
                     x = 0
             player.rect.left = 30
-            player.rect.top = 30
+            player.rect.top = 270
 
    
     #draw screen
-    drawScreen(0, 0, 0, walls)
+    drawScreen(0, 0, 0, walls, waters)
 
 
 
