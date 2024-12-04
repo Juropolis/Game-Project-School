@@ -56,6 +56,8 @@ clock = pygame.time.Clock()
 player = Player() 
 walls = []
 waters = []
+player.rect.left = 30
+player.rect.top = 285
 
 
 #draws first level [Without this first level wont appear until after delay]
@@ -65,7 +67,7 @@ for row in levels[currentLevel]:
         if col == "W":
             walls.append(Wall(x, y))
         if col == "E":
-            end_rect = pygame.Rect(x,y,30,30)
+            end_rect = pygame.Rect(x,y,30,60)
         if col == "B":
             waters.append(Water(x, y))
         x += 30
@@ -199,20 +201,21 @@ while running == True:
             if currentLevel < maxLevel:
                 currentLevel = currentLevel + 1
                 del walls[:]
+                del waters[:]
                 x = y = 0
                 for row in levels[currentLevel]:
                     for col in row:
                         if col == "W":
                             walls.append(Wall(x, y))
                         if col == "E":
-                            end_rect = pygame.Rect(x,y,30,30)
+                            end_rect = pygame.Rect(x,y,30,60)
                         if col == "B":
                             waters.append(Water(x, y))
                         x += 30
                     y += 30
                     x = 0
             player.rect.left = 30
-            player.rect.top = 270
+            player.rect.top = 285
 
    
     #draw screen
