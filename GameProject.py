@@ -1,4 +1,5 @@
 #imports
+import sys
 import os 
 import pygame
 import time
@@ -83,6 +84,16 @@ while running == True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+            pygame.quit()
+            sys.exit()
+        if gameState == "endScreen":
+            userInput = pygame.key.get_pressed()
+            if userInput[pygame.K_RETURN]:
+                running = False
+                pygame.quit()
+                sys.exit()
+
+
     
     #sets to current game time
     currentTime = pygame.time.get_ticks()
@@ -214,12 +225,18 @@ while running == True:
                         x += 30
                     y += 30
                     x = 0
+            elif currentLevel == maxLevel:
+                gameState = "endScreen"
             player.rect.left = 30
             player.rect.top = 285
-
-   
+    
+        
+                   
     #draw screen
-    drawScreen(0, 0, 0, walls, waters)
+    if gameState == "endScreen":
+        drawBlankScreen(0, 0, 0)
+    else:
+        drawScreen(0, 0, 0, walls, waters)
 
 
 
