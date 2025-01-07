@@ -241,7 +241,17 @@ while running == True:
                 gameState = "endScreen"
             player.rect.left = 30
             player.rect.top = 285
-    
+
+        for Enemy in enemies:
+            if player.rect.x > Enemy.rect.x:
+                Enemy.move(2, 0, walls, waters, enemies)
+            if player.rect.x < Enemy.rect.x:
+                Enemy.move(-2, 0, walls, waters, enemies)
+            if player.rect.y < Enemy.rect.y:
+                Enemy.move(0, -2, walls, waters, enemies)
+            if player.rect.y > Enemy.rect.y:
+                Enemy.move(0, 2, walls, waters, enemies)
+
         
                    
     #draw screen
