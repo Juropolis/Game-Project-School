@@ -8,9 +8,11 @@ from PlayerClass import Player
 from WallClass import Wall
 from LevelFile import levels
 from WaterClass import Water
+from EnemyClass import Enemy
 
 #variable initialising
-colour = (254, 36, 82)
+playerColour = (204, 255, 109)
+enemyColour = (254, 69, 69)
 wallColour = (155, 155, 155)
 waterColour = (200, 250, 241)
 currentScore = 0
@@ -27,17 +29,20 @@ dashCooldownTime = 1400
 #draws the screen excluding the player 
 def drawBlankScreen(a, b, c):
     screen.fill((a, b, c))
-    pygame.draw.rect(screen, colour, pygame.Rect(0,0,0,0))
+    pygame.draw.rect(screen, playerColour, pygame.Rect(0,0,0,0))
     pygame.display.flip() 
 
 #draws the screen including the player
 def drawScreen(a, b, c, walls, waters):
     screen.fill((a, b, c,))
-    pygame.draw.rect(screen, colour, player.rect)
+    pygame.draw.rect(screen, playerColour, player.rect)
     for wall in walls:
         pygame.draw.rect(screen,wallColour,wall.rect) 
     for water in waters:
         pygame.draw.rect(screen,waterColour,water.rect)
+    for Enemy in enemies:
+        pygame.draw.rect(screen, enemyColour, Enemy.rect)
+
     pygame.draw.rect(screen,(255,0,0),end_rect)
     pygame.display.flip()
 
@@ -55,6 +60,7 @@ screen = pygame.display.set_mode((width, height))
 #initiate classes
 clock = pygame.time.Clock()
 player = Player() 
+enemies = []
 walls = []
 waters = []
 player.rect.left = 30
@@ -71,6 +77,8 @@ for row in levels[currentLevel]:
             end_rect = pygame.Rect(x,y,30,60)
         if col == "B":
             waters.append(Water(x, y))
+        if col == "N":
+            enemies.append(Enemy(x, y))
         x += 30
     y += 30
     x = 0
@@ -213,6 +221,7 @@ while running == True:
                 currentLevel = currentLevel + 1
                 del walls[:]
                 del waters[:]
+                del enemies[:]
                 x = y = 0
                 for row in levels[currentLevel]:
                     for col in row:
@@ -222,8 +231,11 @@ while running == True:
                             end_rect = pygame.Rect(x,y,30,60)
                         if col == "B":
                             waters.append(Water(x, y))
+                        if col == "N":
+                            enemies.append(Enemy())
+
                         x += 30
-                    y += 30
+                    y += 30 
                     x = 0
             elif currentLevel == maxLevel:
                 gameState = "endScreen"
@@ -237,6 +249,8 @@ while running == True:
         drawBlankScreen(0, 0, 0)
     else:
         drawScreen(0, 0, 0, walls, waters)
+
+
 
 
 
