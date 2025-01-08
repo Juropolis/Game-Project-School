@@ -18,6 +18,7 @@ waterColour = (200, 250, 241)
 currentScore = 0
 gameState = "menus"
 currentLevel = 0
+
 #holds the current amount of levels in the list
 maxLevel = len(levels) - 1
 
@@ -25,7 +26,8 @@ maxLevel = len(levels) - 1
 playerFacing = "right"
 dashCooldown = 0
 dashCooldownTime = 1400
-
+dashTimer = 0
+dashing = False
 #draws the screen excluding the player 
 def drawBlankScreen(a, b, c):
     screen.fill((a, b, c))
@@ -65,7 +67,7 @@ walls = []
 waters = []
 player.rect.left = 30
 player.rect.top = 285
-
+ 
 
 #draws first level [Without this first level wont appear until after delay]
 x = y = 0
@@ -124,95 +126,86 @@ while running == True:
 
          #player movement
         userInput = pygame.key.get_pressed()
-        if userInput[pygame.K_a]:
-            playerFacing = "left"
-            if player.rect.x >= 3:
-                player.move(-3, 0, walls, waters)
-            else: 
-                player.rect.x = 0
+        if dashing == False:
+            if userInput[pygame.K_a]:
+                playerFacing = "left"
+                if player.rect.x >= 3:
+                    player.move(-3, 0, walls, waters)
+                else: 
+                    player.rect.x = 0
     
-        if userInput[pygame.K_d]:
-            playerFacing = "right"
-            if player.rect.x <= width - 33:
-                player.move(3, 0, walls, waters)
-            else:
-                player.rect.x = width - 30
+            if userInput[pygame.K_d]:
+                playerFacing = "right"
+                if player.rect.x <= width - 33:
+                    player.move(3, 0, walls, waters)
+                else:
+                    player.rect.x = width - 30
 
-        if userInput[pygame.K_w]:
-            playerFacing = "up"
-            if player.rect.y >= 3:
-                player.move(0, -3, walls, waters)
-            else:
-                player.rect.y = 0
-    
-        if userInput[pygame.K_s]:
-            playerFacing = "down"
-            if player.rect.y <= height - 33:
-                player.move(0, 3, walls, waters)
-            else:
-                player.rect.y = height - 30
+            if userInput[pygame.K_w]:
+                playerFacing = "up"
+                if player.rect.y >= 3:
+                    player.move(0, -3, walls, waters)
+                else:
+                    player.rect.y = 0
+        
+            if userInput[pygame.K_s]:
+                playerFacing = "down"
+                if player.rect.y <= height - 33:
+                    player.move(0, 3, walls, waters)
+                else:
+                    player.rect.y = height - 30
 
         #dash ability
-        if userInput[pygame.K_SPACE] and currentTime > dashCooldown:
-            
+        if userInput[pygame.K_SPACE] and currentTime > dashCooldown and dashing == False:
+            dashTimer = 1
+            dashing = True
+
+        if dashTimer > 0:    
             if playerFacing == "left":
                 #Loop stops player position being reset multiple times
                 dashLoop = True
-                for i in range(1,20):
-                    if player.rect.x >= 10:
-                        player.move(-10, 0, walls, waters)
-                        drawScreen(0, 0, 0, walls, waters)
-                        time.sleep(0.01)
-                    elif dashLoop == True:
-                        player.rect.x = 0
-                        dashLoop = False
-                        drawScreen(0, 0, 0, walls, waters)
-                        time.sleep(0.01)
-            
+                if player.rect.x >= 20:
+                    player.move(-20, 0, walls, waters)                       
+                elif dashLoop == True:
+                    player.rect.x = 0
+                    dashLoop = False
+                        
+                
             if playerFacing == "right":
                 #Loop stops player position being reset multiple times
                 dashLoop = True
-                for i in range(1,20):
-                    if player.rect.x <= width - 40:
-                        player.move(10, 0, walls, waters)
-                        drawScreen(0, 0, 0, walls, waters)
-                        time.sleep(0.01)
-                    elif dashLoop == True:
-                        player.rect.x = width - 30
-                        dashLoop = False
-                        drawScreen(0, 0, 0, walls, waters)
-                        time.sleep(0.01)
-            
+                if player.rect.x <= width - 50:
+                    player.move(20, 0, walls, waters)
+                elif dashLoop == True:
+                    player.rect.x = width - 40
+                    dashLoop = False
+                    
+                
             if playerFacing == "up":
                 #Loop stops player position being reset multiple times
                 dashLoop = True
-                for i in range(1,20):
-                    if player.rect.y >= 10:
-                        player.move(0, -10, walls, waters)
-                        drawScreen(0, 0, 0, walls, waters)
-                        time.sleep(0.01)
-                    elif dashLoop == True:
-                        player.rect.y = 0
-                        dashLoop = False
-                        drawScreen(0, 0, 0, walls, waters)
-                        time.sleep(0.01)
-            
+                if player.rect.y >= 20:
+                    player.move(0, -20, walls, waters)
+                elif dashLoop == True:
+                    player.rect.y = 0
+                    dashLoop = False
+                    
+                    
+                
             if playerFacing == "down":
                 #Loop stops player position being reset multiple times
                 dashLoop = True
-                for i in range(1,20):
-                    if player.rect.y <= height - 40:
-                        player.move(0, 10, walls, waters)
-                        drawScreen(0, 0, 0, walls, waters)
-                        time.sleep(0.01)
-                    elif dashLoop == True:
-                        player.rect.y = height - 30
-                        dashLoop = False
-                        drawScreen(0, 0, 0, walls, waters)
-                        time.sleep(0.01)
+                if player.rect.y <= height - 50:
+                    player.move(0, 20, walls, waters)               
+                elif dashLoop == True:
+                    player.rect.y = height - 40
+                    dashLoop = False
+        else:
+            dashing = False
+                  
+                    
 
-            #sets cooldown time
-            dashCooldown = currentTime + dashCooldownTime
+        
         
         #detects if player touches the exit door
         if player.rect.colliderect(end_rect):
@@ -232,7 +225,7 @@ while running == True:
                         if col == "B":
                             waters.append(Water(x, y))
                         if col == "N":
-                            enemies.append(Enemy())
+                            enemies.append(Enemy(x, y))
 
                         x += 30
                     y += 30 
@@ -251,14 +244,22 @@ while running == True:
                 Enemy.move(0, -2, walls, waters, enemies)
             if player.rect.y > Enemy.rect.y:
                 Enemy.move(0, 2, walls, waters, enemies)
-
+            
+    #sets cooldown time
+        if dashTimer > 15:
+            dashTimer = 0
+            dashCooldown = currentTime + dashCooldownTime
+        elif dashing == True:
+            dashTimer = dashTimer + 1
         
-                   
+    print(dashTimer)               
     #draw screen
     if gameState == "endScreen":
         drawBlankScreen(0, 0, 0)
     else:
         drawScreen(0, 0, 0, walls, waters)
+
+    
 
 
 
