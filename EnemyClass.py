@@ -1,16 +1,17 @@
 import pygame
 
+
 #initialise enemy class
 class Enemy(object):
     def __init__(self, x, y):
         self.rect = pygame.Rect(x,y,30,30)
         
-    def move(self, dx, dy, walls, waters, enemies):
+    def move(self, dx, dy, walls, waters, enemies, player):
         if dx != 0:
-            self.move_single_axis(dx, 0, walls, waters, enemies)
+            self.move_single_axis(dx, 0, walls, waters, enemies, player)
         if dy != 0:
-            self.move_single_axis(0, dy, walls, waters, enemies)
-    def move_single_axis(self, dx, dy, walls, waters, enemies):
+            self.move_single_axis(0, dy, walls, waters, enemies, player)
+    def move_single_axis(self, dx, dy, walls, waters, enemies, player):
         self.rect.x += dx
         self.rect.y += dy
 
@@ -44,4 +45,19 @@ class Enemy(object):
                     self.rect.bottom = Enemy.rect.top
                 if dy < 0:
                     self.rect.top = Enemy.rect.bottom
+        if self.rect.colliderect(player.rect):
+                if dx > 0:
+                    self.rect.right = player.rect.left
+                if dx < 0:
+                    self.rect.left = player.rect.right
+                if dy > 0:
+                    self.rect.bottom = player.rect.top
+                if dy < 0:
+                    self.rect.top = player.rect.bottom
+ 
+        
+                   
+
+
+
         

@@ -5,15 +5,16 @@ class Player(object):
     def __init__(self):
         self.rect = pygame.Rect(30,30,30,30)
         
-    def move(self, dx, dy, walls, waters):
+    def move(self, dx, dy, walls, waters, enemies):
         if dx != 0:
-            self.move_single_axis(dx, 0, walls, waters)
+            self.move_single_axis(dx, 0, walls, waters, enemies)
         if dy != 0:
-            self.move_single_axis(0, dy, walls, waters)
-    def move_single_axis(self, dx, dy, walls, waters):
+            self.move_single_axis(0, dy, walls, waters, enemies)
+
+    def move_single_axis(self, dx, dy, walls, waters, enemies):
         self.rect.x += dx
         self.rect.y += dy
-
+        
         for wall in walls:
             if self.rect.colliderect(wall.rect):
                 if dx > 0:
@@ -34,5 +35,15 @@ class Player(object):
                     self.rect.bottom = water.rect.top
                 if dy < 0:
                     self.rect.top = water.rect.bottom
+        for Enemy in enemies:
+            if self.rect.colliderect(Enemy.rect):
+                if dx > 0:
+                    self.rect.right = Enemy.rect.left
+                if dx < 0:
+                    self.rect.left = Enemy.rect.right
+                if dy > 0:
+                    self.rect.bottom = Enemy.rect.top
+                if dy < 0:
+                    self.rect.top = Enemy.rect.bottom
                 
         

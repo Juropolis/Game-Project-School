@@ -67,7 +67,7 @@ walls = []
 waters = []
 player.rect.left = 30
 player.rect.top = 285
- 
+wasdMovement = False
 
 #draws first level [Without this first level wont appear until after delay]
 x = y = 0
@@ -90,6 +90,7 @@ running = True
 
 #Game loop
 while running == True:
+    wasdMovement = False
     clock.tick(60)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -128,30 +129,34 @@ while running == True:
         userInput = pygame.key.get_pressed()
         if dashing == False:
             if userInput[pygame.K_a]:
+                wasdMovement = True
                 playerFacing = "left"
                 if player.rect.x >= 3:
-                    player.move(-3, 0, walls, waters)
+                    player.move(-3, 0, walls, waters, enemies)
                 else: 
                     player.rect.x = 0
     
             if userInput[pygame.K_d]:
+                wasdMovement = True
                 playerFacing = "right"
                 if player.rect.x <= width - 33:
-                    player.move(3, 0, walls, waters)
+                    player.move(3, 0, walls, waters, enemies)
                 else:
                     player.rect.x = width - 30
 
             if userInput[pygame.K_w]:
+                wasdMovement = True
                 playerFacing = "up"
                 if player.rect.y >= 3:
-                    player.move(0, -3, walls, waters)
+                    player.move(0, -3, walls, waters, enemies)
                 else:
                     player.rect.y = 0
         
             if userInput[pygame.K_s]:
+                wasdMovement = True
                 playerFacing = "down"
                 if player.rect.y <= height - 33:
-                    player.move(0, 3, walls, waters)
+                    player.move(0, 3, walls, waters, enemies)
                 else:
                     player.rect.y = height - 30
 
@@ -165,7 +170,7 @@ while running == True:
                 #Loop stops player position being reset multiple times
                 dashLoop = True
                 if player.rect.x >= 20:
-                    player.move(-20, 0, walls, waters)                       
+                    player.move(-20, 0, walls, waters, enemies)                       
                 elif dashLoop == True:
                     player.rect.x = 0
                     dashLoop = False
@@ -175,7 +180,7 @@ while running == True:
                 #Loop stops player position being reset multiple times
                 dashLoop = True
                 if player.rect.x <= width - 50:
-                    player.move(20, 0, walls, waters)
+                    player.move(20, 0, walls, waters, enemies)
                 elif dashLoop == True:
                     player.rect.x = width - 40
                     dashLoop = False
@@ -185,7 +190,7 @@ while running == True:
                 #Loop stops player position being reset multiple times
                 dashLoop = True
                 if player.rect.y >= 20:
-                    player.move(0, -20, walls, waters)
+                    player.move(0, -20, walls, waters, enemies)
                 elif dashLoop == True:
                     player.rect.y = 0
                     dashLoop = False
@@ -196,7 +201,7 @@ while running == True:
                 #Loop stops player position being reset multiple times
                 dashLoop = True
                 if player.rect.y <= height - 50:
-                    player.move(0, 20, walls, waters)               
+                    player.move(0, 20, walls, waters, enemies)               
                 elif dashLoop == True:
                     player.rect.y = height - 40
                     dashLoop = False
@@ -236,14 +241,17 @@ while running == True:
             player.rect.top = 285
 
         for Enemy in enemies:
-            if player.rect.x > Enemy.rect.x:
-                Enemy.move(2, 0, walls, waters, enemies)
-            if player.rect.x < Enemy.rect.x:
-                Enemy.move(-2, 0, walls, waters, enemies)
-            if player.rect.y < Enemy.rect.y:
-                Enemy.move(0, -2, walls, waters, enemies)
-            if player.rect.y > Enemy.rect.y:
-                Enemy.move(0, 2, walls, waters, enemies)
+            if not Enemy.rect.colliderect(player.rect):
+                if player.rect.x > Enemy.rect.x:
+                    Enemy.move(2, 0, walls, waters, enemies, player)
+                if player.rect.x < Enemy.rect.x:
+                    Enemy.move(-2, 0, walls, waters, enemies, player)
+                if player.rect.y < Enemy.rect.y:
+                    Enemy.move(0, -2, walls, waters, enemies, player)
+                if player.rect.y > Enemy.rect.y:
+                    Enemy.move(0, 2, walls, waters, enemies, player)
+           
+                    
             
     #sets cooldown time
         if dashTimer > 15:
