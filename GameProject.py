@@ -23,7 +23,8 @@ currentLevel = 0
 maxLevel = len(levels) - 1
 
 #This is used for the dash ability
-playerFacing = "right"
+playerFacingX = "right"
+playerFacingY = "up"
 dashCooldown = 0
 dashCooldownTime = 1400
 dashTimer = 0
@@ -112,11 +113,10 @@ while running == True:
     #loop for menus
     if gameState == "menus":
         drawBlankScreen(255, 255, 255)
-        while gameState == "menus":
+        if gameState == "menus":
            userInput = pygame.key.get_pressed()
            if userInput[pygame.K_RETURN]:
                 gameState = "playing"
-           drawBlankScreen(255, 255, 255)
            for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -125,12 +125,21 @@ while running == True:
     #loop for gameplay
     if gameState == "playing":
 
+        if userInput[pygame.K_a]:
+            playerFacingX = "left"
+        if userInput[pygame.K_d]:
+            playerFacingX = "right"
+        if userInput[pygame.K_w]:
+            playerFacingY = "up"
+        if userInput[pygame.K_s]:
+            playerFacingY = "down"
+        
+
          #player movement
         userInput = pygame.key.get_pressed()
         if dashing == False:
             if userInput[pygame.K_a]:
                 wasdMovement = True
-                playerFacing = "left"
                 if player.rect.x >= 3:
                     player.move(-3, 0, walls, waters, enemies)
                 else: 
@@ -138,7 +147,6 @@ while running == True:
     
             if userInput[pygame.K_d]:
                 wasdMovement = True
-                playerFacing = "right"
                 if player.rect.x <= width - 33:
                     player.move(3, 0, walls, waters, enemies)
                 else:
@@ -146,7 +154,6 @@ while running == True:
 
             if userInput[pygame.K_w]:
                 wasdMovement = True
-                playerFacing = "up"
                 if player.rect.y >= 3:
                     player.move(0, -3, walls, waters, enemies)
                 else:
@@ -154,19 +161,18 @@ while running == True:
         
             if userInput[pygame.K_s]:
                 wasdMovement = True
-                playerFacing = "down"
                 if player.rect.y <= height - 33:
                     player.move(0, 3, walls, waters, enemies)
                 else:
                     player.rect.y = height - 30
 
         #dash ability
-        if userInput[pygame.K_SPACE] and currentTime > dashCooldown and dashing == False:
+        if userInput[pygame.K_SPACE] and currentTime > dashCooldown and dashing == False and (playerFacingX != "Neutral" or playerFacingY != "Neutral"):
             dashTimer = 1
             dashing = True
 
         if dashTimer > 0:    
-            if playerFacing == "left":
+            if playerFacingX == "left":
                 #Loop stops player position being reset multiple times
                 dashLoop = True
                 if player.rect.x >= 20:
@@ -176,7 +182,7 @@ while running == True:
                     dashLoop = False
                         
                 
-            if playerFacing == "right":
+            if playerFacingX == "right":
                 #Loop stops player position being reset multiple times
                 dashLoop = True
                 if player.rect.x <= width - 50:
@@ -186,7 +192,7 @@ while running == True:
                     dashLoop = False
                     
                 
-            if playerFacing == "up":
+            if playerFacingY == "up":
                 #Loop stops player position being reset multiple times
                 dashLoop = True
                 if player.rect.y >= 20:
@@ -197,7 +203,7 @@ while running == True:
                     
                     
                 
-            if playerFacing == "down":
+            if playerFacingY == "down":
                 #Loop stops player position being reset multiple times
                 dashLoop = True
                 if player.rect.y <= height - 50:
@@ -259,11 +265,14 @@ while running == True:
             dashCooldown = currentTime + dashCooldownTime
         elif dashing == True:
             dashTimer = dashTimer + 1
-        
-    print(dashTimer)               
+
+    playerFacingX = "Neutral"
+    playerFacingY = "Neutral"              
     #draw screen
     if gameState == "endScreen":
         drawBlankScreen(0, 0, 0)
+    elif gameState == "menus":
+        drawBlankScreen(255, 255, 255)
     else:
         drawScreen(0, 0, 0, walls, waters)
 
