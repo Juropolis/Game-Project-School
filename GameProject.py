@@ -9,15 +9,21 @@ from WallClass import Wall
 from LevelFile import levels
 from WaterClass import Water
 from EnemyClass import Enemy
-
+from LightHitboxClass import LightHitbox
 #variable initialising
 playerColour = (204, 255, 109)
+LattackColour = (0, 255, 0)
 enemyColour = (254, 69, 69)
 wallColour = (155, 155, 155)
 waterColour = (200, 250, 241)
 currentScore = 0
 gameState = "menus"
 currentLevel = 0
+
+#Attacking Variables
+lightAttacking = False
+heavyAttacking = False
+specialAttacking = False
 
 #holds the current amount of levels in the list
 maxLevel = len(levels) - 1
@@ -39,15 +45,25 @@ def drawBlankScreen(a, b, c):
 def drawScreen(a, b, c, walls, waters):
     screen.fill((a, b, c,))
     pygame.draw.rect(screen, playerColour, player.rect)
+    if lightAttacking == True:
+        pygame.draw.rect(screen, LattackColour, Lattack.rect)
+    elif heavyAttacking == True:
+        print("heavy")
+    elif specialAttacking == True:
+        print("special")
+    else:
+        pygame.draw.rect(screen, playerColour, player.rect)
     for wall in walls:
         pygame.draw.rect(screen,wallColour,wall.rect) 
     for water in waters:
         pygame.draw.rect(screen,waterColour,water.rect)
     for Enemy in enemies:
         pygame.draw.rect(screen, enemyColour, Enemy.rect)
-
+    
     pygame.draw.rect(screen,(255,0,0),end_rect)
     pygame.display.flip()
+
+
 
 
 #start pygame
@@ -62,7 +78,8 @@ screen = pygame.display.set_mode((width, height))
 
 #initiate classes
 clock = pygame.time.Clock()
-player = Player() 
+player = Player()
+Lattack = LightHitbox(0, 0) 
 enemies = []
 walls = []
 waters = []
@@ -213,6 +230,10 @@ while running == True:
                     dashLoop = False
         else:
             dashing = False
+
+        if userInput[pygame.K_u]:
+            if lightAttacking == False:
+                lightAttacking = True
                   
                     
 
@@ -246,6 +267,7 @@ while running == True:
             player.rect.left = 30
             player.rect.top = 285
 
+        #moves enemies
         for Enemy in enemies:
             if not Enemy.rect.colliderect(player.rect):
                 if player.rect.x > Enemy.rect.x:
@@ -256,7 +278,20 @@ while running == True:
                     Enemy.move(0, -2, walls, waters, enemies, player)
                 if player.rect.y > Enemy.rect.y:
                     Enemy.move(0, 2, walls, waters, enemies, player)
-           
+        
+        #sets attack box positions
+        Lattack.rect.x = player.rect.x
+
+        if playerFacingX != "Neutral":
+            if playerFacingX == "left":
+                Lattack.rect.x = Lattack.rect.x - 20
+            elif playerFacingX == "right":
+                Lattack.rect.x = Lattack.rect.x + 20
+        if playerFacingY != "Neutral":
+            if playerFacingY == "up":
+                Lattack.rect.y = Lattack.rect.y - 20
+            elif playerFacingY == "down":
+                Lattack.rect.y = Lattack.rect.y + 20
                     
             
     #sets cooldown time
