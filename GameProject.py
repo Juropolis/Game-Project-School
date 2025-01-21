@@ -11,6 +11,8 @@ from WaterClass import Water
 from EnemyClass import Enemy
 from LightHitboxClass import LightHitbox
 #variable initialising
+playerFacingX = "right"
+playerFacingY = "up"
 playerColour = (204, 255, 109)
 LattackColour = (0, 255, 0)
 enemyColour = (254, 69, 69)
@@ -29,12 +31,18 @@ specialAttacking = False
 maxLevel = len(levels) - 1
 
 #This is used for the dash ability
-playerFacingX = "right"
-playerFacingY = "up"
 dashCooldown = 0
 dashCooldownTime = 1400
 dashTimer = 0
 dashing = False
+
+#This is used for the light attack
+LattackCooldown = 0
+LattackCooldownTime = 600
+LattackTimer = 0
+
+
+
 #draws the screen excluding the player 
 def drawBlankScreen(a, b, c):
     screen.fill((a, b, c))
@@ -230,10 +238,11 @@ while running == True:
                     dashLoop = False
         else:
             dashing = False
-
-        if userInput[pygame.K_u]:
-            if lightAttacking == False:
-                lightAttacking = True
+        
+        #Keybind for LightAttacking
+        if userInput[pygame.K_u] and currentTime > LattackCooldown and lightAttacking == False:
+            lightAttacking = True
+                
                   
                     
 
@@ -280,7 +289,8 @@ while running == True:
                     Enemy.move(0, 2, walls, waters, enemies, player)
         
         #sets attack box positions
-        Lattack.rect.x = player.rect.x
+        Lattack.rect.x = player.rect.x - 10
+        Lattack.rect.y = player.rect.y - 10
 
         if playerFacingX != "Neutral":
             if playerFacingX == "left":
@@ -294,12 +304,20 @@ while running == True:
                 Lattack.rect.y = Lattack.rect.y + 20
                     
             
-    #sets cooldown time
+    #sets dash cooldown 
         if dashTimer > 15:
             dashTimer = 0
             dashCooldown = currentTime + dashCooldownTime
         elif dashing == True:
             dashTimer = dashTimer + 1
+    
+    #sets light attack cooldown 
+        if LattackTimer > 10:
+            lightAttacking = False
+            LattackTimer = 0
+            LattackCooldown = currentTime + LattackCooldownTime
+        elif lightAttacking == True:
+            LattackTimer = LattackTimer + 1
 
     playerFacingX = "Neutral"
     playerFacingY = "Neutral"              
