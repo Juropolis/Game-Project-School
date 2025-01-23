@@ -10,11 +10,13 @@ from LevelFile import levels
 from WaterClass import Water
 from EnemyClass import Enemy
 from LightHitboxClass import LightHitbox
+from HeavyHitboxClass import HeavyHitbox
 #variable initialising
 playerFacingX = "right"
 playerFacingY = "up"
 playerColour = (204, 255, 109)
 LattackColour = (0, 255, 0)
+HattackColour = (0, 0, 255)
 enemyColour = (254, 69, 69)
 wallColour = (155, 155, 155)
 waterColour = (200, 250, 241)
@@ -41,6 +43,11 @@ LattackCooldown = 0
 LattackCooldownTime = 600
 LattackTimer = 0
 
+#This is used for the Heavy attack
+HattackCooldown = 0
+HattackCooldownTime = 1200
+HattackTimer = 0
+
 
 
 #draws the screen excluding the player 
@@ -52,11 +59,10 @@ def drawBlankScreen(a, b, c):
 #draws the screen including the player
 def drawScreen(a, b, c, walls, waters):
     screen.fill((a, b, c,))
-    pygame.draw.rect(screen, playerColour, player.rect)
     if lightAttacking == True:
         pygame.draw.rect(screen, LattackColour, Lattack.rect)
     elif heavyAttacking == True:
-        print("heavy")
+        pygame.draw.rect(screen, HattackColour, Hattack.rect)
     elif specialAttacking == True:
         print("special")
     else:
@@ -67,6 +73,7 @@ def drawScreen(a, b, c, walls, waters):
         pygame.draw.rect(screen,waterColour,water.rect)
     for Enemy in enemies:
         pygame.draw.rect(screen, enemyColour, Enemy.rect)
+    pygame.draw.rect(screen, playerColour, player.rect)
     
     pygame.draw.rect(screen,(255,0,0),end_rect)
     pygame.display.flip()
@@ -88,6 +95,7 @@ screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 player = Player()
 Lattack = LightHitbox(0, 0) 
+Hattack = HeavyHitbox(0, 0)
 enemies = []
 walls = []
 waters = []
@@ -240,8 +248,14 @@ while running == True:
             dashing = False
         
         #Keybind for LightAttacking
-        if userInput[pygame.K_u] and currentTime > LattackCooldown and lightAttacking == False:
+        if userInput[pygame.K_u] and currentTime > LattackCooldown and currentTime > HattackCooldown and lightAttacking == False and heavyAttacking == False:
             lightAttacking = True
+
+        #Keybind for HeavyAttcking
+        if userInput[pygame.K_i] and currentTime > HattackCooldown and heavyAttacking == False:
+            if lightAttacking == True:
+                lightAttacking = False
+            heavyAttacking = True
                 
                   
                     
@@ -291,17 +305,24 @@ while running == True:
         #sets attack box positions
         Lattack.rect.x = player.rect.x - 10
         Lattack.rect.y = player.rect.y - 10
+        
+        Hattack.rect.x = player.rect.x - 20
+        Hattack.rect.y = player.rect.y - 20
 
         if playerFacingX != "Neutral":
             if playerFacingX == "left":
                 Lattack.rect.x = Lattack.rect.x - 20
+                Hattack.rect.x = Hattack.rect.x - 20
             elif playerFacingX == "right":
                 Lattack.rect.x = Lattack.rect.x + 20
+                Hattack.rect.x = Hattack.rect.x + 20
         if playerFacingY != "Neutral":
             if playerFacingY == "up":
                 Lattack.rect.y = Lattack.rect.y - 20
+                Hattack.rect.y = Hattack.rect.y - 20
             elif playerFacingY == "down":
                 Lattack.rect.y = Lattack.rect.y + 20
+                Hattack.rect.y = Hattack.rect.y + 20
                     
             
     #sets dash cooldown 
@@ -318,6 +339,14 @@ while running == True:
             LattackCooldown = currentTime + LattackCooldownTime
         elif lightAttacking == True:
             LattackTimer = LattackTimer + 1
+    
+    #sets heavy attack cooldown 
+        if HattackTimer > 16:
+            heavyAttacking = False
+            HattackTimer = 0
+            HattackCooldown = currentTime + HattackCooldownTime
+        elif heavyAttacking == True:
+            HattackTimer = HattackTimer + 1
 
     playerFacingX = "Neutral"
     playerFacingY = "Neutral"              
