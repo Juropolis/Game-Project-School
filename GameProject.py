@@ -11,12 +11,15 @@ from WaterClass import Water
 from EnemyClass import Enemy
 from LightHitboxClass import LightHitbox
 from HeavyHitboxClass import HeavyHitbox
+from SpecialHitboxClass import SpecialHitbox
+
 #variable initialising
 playerFacingX = "right"
 playerFacingY = "up"
 playerColour = (204, 255, 109)
 LattackColour = (0, 255, 0)
 HattackColour = (0, 0, 255)
+SattackColour = (0, 155, 155)
 enemyColour = (254, 69, 69)
 wallColour = (155, 155, 155)
 waterColour = (200, 250, 241)
@@ -28,6 +31,7 @@ currentLevel = 0
 lightAttacking = False
 heavyAttacking = False
 specialAttacking = False
+directionSet = True
 
 #holds the current amount of levels in the list
 maxLevel = len(levels) - 1
@@ -48,6 +52,11 @@ HattackCooldown = 0
 HattackCooldownTime = 1200
 HattackTimer = 0
 
+#This is used for the Heavy attack
+SattackCooldown = 0
+SattackCooldownTime = 1600
+SattackTimer = 0
+
 
 
 #draws the screen excluding the player 
@@ -64,7 +73,7 @@ def drawScreen(a, b, c, walls, waters):
     elif heavyAttacking == True:
         pygame.draw.rect(screen, HattackColour, Hattack.rect)
     elif specialAttacking == True:
-        print("special")
+        pygame.draw.rect(screen, SattackColour, Sattack.rect)
     else:
         pygame.draw.rect(screen, playerColour, player.rect)
     for wall in walls:
@@ -96,6 +105,7 @@ clock = pygame.time.Clock()
 player = Player()
 Lattack = LightHitbox(0, 0) 
 Hattack = HeavyHitbox(0, 0)
+Sattack = SpecialHitbox(0, 0)
 enemies = []
 walls = []
 waters = []
@@ -248,14 +258,22 @@ while running == True:
             dashing = False
         
         #Keybind for LightAttacking
-        if userInput[pygame.K_u] and currentTime > LattackCooldown and currentTime > HattackCooldown and lightAttacking == False and heavyAttacking == False:
+        if userInput[pygame.K_u] and currentTime > LattackCooldown and currentTime > HattackCooldown and lightAttacking == False and heavyAttacking == False and specialAttacking == False:
             lightAttacking = True
 
         #Keybind for HeavyAttcking
-        if userInput[pygame.K_i] and currentTime > HattackCooldown and heavyAttacking == False:
+        if userInput[pygame.K_i] and currentTime > HattackCooldown and heavyAttacking == False and specialAttacking == False:
             if lightAttacking == True:
                 lightAttacking = False
             heavyAttacking = True
+        
+        #keybind for SpecialAttacking
+        if userInput[pygame.K_o] and currentTime > SattackCooldown and specialAttacking == False:
+            if lightAttacking == True:
+                lightAttacking = False
+            if heavyAttacking == True:
+                heavyAttacking = False
+            specialAttacking = True
                 
                   
                     
@@ -309,20 +327,55 @@ while running == True:
         Hattack.rect.x = player.rect.x - 20
         Hattack.rect.y = player.rect.y - 20
 
+        if specialAttacking == False:
+            Sattack.rect.x = player.rect.x - 15
+            Sattack.rect.y = player.rect.y - 15
+
         if playerFacingX != "Neutral":
             if playerFacingX == "left":
                 Lattack.rect.x = Lattack.rect.x - 20
                 Hattack.rect.x = Hattack.rect.x - 20
+                if specialAttacking == False:
+                    Sattack.rect.x = Sattack.rect.x - 20
             elif playerFacingX == "right":
                 Lattack.rect.x = Lattack.rect.x + 20
                 Hattack.rect.x = Hattack.rect.x + 20
+                if specialAttacking == False:
+                    Sattack.rect.x = Sattack.rect.x + 20
         if playerFacingY != "Neutral":
             if playerFacingY == "up":
                 Lattack.rect.y = Lattack.rect.y - 20
                 Hattack.rect.y = Hattack.rect.y - 20
+                if specialAttacking == False:
+                    Sattack.rect.y = Sattack.rect.y - 20
             elif playerFacingY == "down":
                 Lattack.rect.y = Lattack.rect.y + 20
                 Hattack.rect.y = Hattack.rect.y + 20
+                if specialAttacking == False:
+                    Sattack.rect.y = Sattack.rect.y + 20
+
+        if specialAttacking == True:
+            if directionSet == True:
+                specialTravelX = playerFacingX
+                specialTravelY = playerFacingY
+                directionSet = False
+            if Sattack.rect.colliderect():
+            if specialTravelX == "left":
+                Sattack.rect.x = Sattack.rect.x - 25
+            if specialTravelX == "right":
+                Sattack.rect.x = Sattack.rect.x + 25
+            if specialTravelY == "up":
+                Sattack.rect.y = Sattack.rect.y - 25
+            if specialTravelY == "down":
+                Sattack.rect.y = Sattack.rect.y + 25
+            
+    
+                
+
+
+
+
+
                     
             
     #sets dash cooldown 
@@ -347,6 +400,10 @@ while running == True:
             HattackCooldown = currentTime + HattackCooldownTime
         elif heavyAttacking == True:
             HattackTimer = HattackTimer + 1
+
+    #sets special attack cooldown 
+        
+        
 
     playerFacingX = "Neutral"
     playerFacingY = "Neutral"              
