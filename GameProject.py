@@ -44,48 +44,22 @@ dashing = False
 
 #This is used for the light attack
 LattackCooldown = 0
-LattackCooldownTime = 600
+LattackCooldownTime = 400
 LattackTimer = 0
+LhitTimer = 20
 
 #This is used for the Heavy attack
 HattackCooldown = 0
-HattackCooldownTime = 1200
+HattackCooldownTime = 1400
 HattackTimer = 0
+HhitTimer = 32
 
-#This is used for the Heavy attack
+#This is used for the Special attack
 SattackCooldown = 0
-SattackCooldownTime = 1600
+SattackCooldownTime = 2200
 SattackTimer = 0
-
-
-
-#draws the screen excluding the player 
-def drawBlankScreen(a, b, c):
-    screen.fill((a, b, c))
-    pygame.draw.rect(screen, playerColour, pygame.Rect(0,0,0,0))
-    pygame.display.flip() 
-
-#draws the screen including the player
-def drawScreen(a, b, c, walls, waters):
-    screen.fill((a, b, c,))
-    if lightAttacking == True:
-        pygame.draw.rect(screen, LattackColour, Lattack.rect)
-    elif heavyAttacking == True:
-        pygame.draw.rect(screen, HattackColour, Hattack.rect)
-    elif specialAttacking == True:
-        pygame.draw.rect(screen, SattackColour, Sattack.rect)
-    else:
-        pygame.draw.rect(screen, playerColour, player.rect)
-    for wall in walls:
-        pygame.draw.rect(screen,wallColour,wall.rect) 
-    for water in waters:
-        pygame.draw.rect(screen,waterColour,water.rect)
-    for Enemy in enemies:
-        pygame.draw.rect(screen, enemyColour, Enemy.rect)
-    pygame.draw.rect(screen, playerColour, player.rect)
-    
-    pygame.draw.rect(screen,(255,0,0),end_rect)
-    pygame.display.flip()
+ShitTimer = 24
+Scollision = False
 
 
 
@@ -112,6 +86,34 @@ waters = []
 player.rect.left = 30
 player.rect.top = 285
 wasdMovement = False
+
+#draws the screen excluding the player 
+def drawBlankScreen(a, b, c):
+    screen.fill((a, b, c))
+    pygame.draw.rect(screen, playerColour, pygame.Rect(0,0,0,0))
+    pygame.display.flip() 
+
+#draws the screen including the player
+def drawScreen(a, b, c, walls, waters):
+    screen.fill((a, b, c,))
+    if lightAttacking == True:
+        pygame.draw.rect(screen, LattackColour, Lattack.rect)
+    elif heavyAttacking == True:
+        pygame.draw.rect(screen, HattackColour, Hattack.rect)
+    elif specialAttacking == True:
+        pygame.draw.rect(screen, SattackColour, Sattack.rect)
+    else:
+        pygame.draw.rect(screen, playerColour, player.rect)
+    for wall in walls:
+        pygame.draw.rect(screen,wallColour,wall.rect) 
+    for water in waters:
+        pygame.draw.rect(screen,waterColour,water.rect)
+    for enemy in enemies:
+        pygame.draw.rect(screen, enemyColour, enemy.rect)
+    pygame.draw.rect(screen, playerColour, player.rect)
+    
+    pygame.draw.rect(screen,(255,0,0),end_rect)
+    pygame.display.flip()
 
 #draws first level [Without this first level wont appear until after delay]
 x = y = 0
@@ -178,7 +180,7 @@ while running == True:
             playerFacingY = "down"
         
 
-         #player movement
+        #player movement
         userInput = pygame.key.get_pressed()
         if dashing == False:
             if userInput[pygame.K_a]:
@@ -258,22 +260,30 @@ while running == True:
             dashing = False
         
         #Keybind for LightAttacking
-        if userInput[pygame.K_u] and currentTime > LattackCooldown and currentTime > HattackCooldown and lightAttacking == False and heavyAttacking == False and specialAttacking == False:
+        if userInput[pygame.K_u] and currentTime > LattackCooldown and currentTime > HattackCooldown and currentTime > SattackCooldown and lightAttacking == False and heavyAttacking == False and specialAttacking == False:
             lightAttacking = True
 
         #Keybind for HeavyAttcking
-        if userInput[pygame.K_i] and currentTime > HattackCooldown and heavyAttacking == False and specialAttacking == False:
+        if userInput[pygame.K_i] and currentTime > HattackCooldown and currentTime > SattackCooldown and heavyAttacking == False and specialAttacking == False:
             if lightAttacking == True:
                 lightAttacking = False
             heavyAttacking = True
         
         #keybind for SpecialAttacking
-        if userInput[pygame.K_o] and currentTime > SattackCooldown and specialAttacking == False:
+        if userInput[pygame.K_o] and currentTime > SattackCooldown and specialAttacking == False and (playerFacingX != "Neutral" or playerFacingY != "Neutral"):
+            #allows hitbox cancelling
             if lightAttacking == True:
                 lightAttacking = False
             if heavyAttacking == True:
                 heavyAttacking = False
+            #starts the Special attack and allows Special attack to move
             specialAttacking = True
+            Scollision = False
+            #allows direction of attack to be set for each attack
+            directionSet = True
+            #stops cube from becoming massive overtime
+            Sattack.rect.height = 60
+            Sattack.rect.width = 60
                 
                   
                     
@@ -308,17 +318,47 @@ while running == True:
             player.rect.left = 30
             player.rect.top = 285
 
-        #moves enemies
-        for Enemy in enemies:
-            if not Enemy.rect.colliderect(player.rect):
-                if player.rect.x > Enemy.rect.x:
-                    Enemy.move(2, 0, walls, waters, enemies, player)
-                if player.rect.x < Enemy.rect.x:
-                    Enemy.move(-2, 0, walls, waters, enemies, player)
-                if player.rect.y < Enemy.rect.y:
-                    Enemy.move(0, -2, walls, waters, enemies, player)
-                if player.rect.y > Enemy.rect.y:
-                    Enemy.move(0, 2, walls, waters, enemies, player)
+        #Enemy Code
+        for enemy in enemies:
+            #moves enemies
+            if not enemy.rect.colliderect(player.rect):
+                if player.rect.x > enemy.rect.x:
+                    enemy.move(2, 0, walls, waters, enemies, player)
+                if player.rect.x < enemy.rect.x:
+                    enemy.move(-2, 0, walls, waters, enemies, player)
+                if player.rect.y < enemy.rect.y:
+                    enemy.move(0, -2, walls, waters, enemies, player)
+                if player.rect.y > enemy.rect.y:
+                    enemy.move(0, 2, walls, waters, enemies, player)
+            #calculates damage
+            if enemy.rect.colliderect(Lattack.rect):
+                if enemy.damageTimer == 0:
+                    if lightAttacking == True:
+                        enemy.recieveDamage(10)
+                        enemy.damageTimer = LhitTimer
+                        enemy.previousAttackRecieved = "Light"
+                        print(enemy.health)
+            if enemy.rect.colliderect(Hattack.rect):
+                #allows attack cancelling as well as hitting the same attack again
+                if enemy.previousAttackRecieved == "Light" or enemy.damageTimer == 0:
+                    if heavyAttacking == True:
+                        enemy.recieveDamage(20)
+                        enemy.damageTimer = HhitTimer
+                        enemy.previousAttackRecieved = "Heavy"
+                        print(enemy.health)
+            if enemy.rect.colliderect(Sattack.rect):
+                #allows attack cancelling as well as hitting the same attack again
+                if enemy.previousAttackRecieved == "Light" or enemy.previousAttackRecieved == "Heavy" or enemy.damageTimer == 0:
+                    if specialAttacking == True:
+                        enemy.recieveDamage(30)
+                        enemy.damageTimer = ShitTimer
+                        enemy.previousAttackRecieved = "Special"
+                        print(enemy.health)
+                    
+            if enemy.damageTimer > 0:
+                enemy.damageTimer = enemy.damageTimer - 1
+           
+           
         
         #sets attack box positions
         Lattack.rect.x = player.rect.x - 10
@@ -327,10 +367,13 @@ while running == True:
         Hattack.rect.x = player.rect.x - 20
         Hattack.rect.y = player.rect.y - 20
 
+
+        #So that position reset code doesn't interfere with movement
         if specialAttacking == False:
             Sattack.rect.x = player.rect.x - 15
             Sattack.rect.y = player.rect.y - 15
 
+        #sets position light and heavy hitboxes as well as initial position of special hitbox
         if playerFacingX != "Neutral":
             if playerFacingX == "left":
                 Lattack.rect.x = Lattack.rect.x - 20
@@ -354,20 +397,43 @@ while running == True:
                 if specialAttacking == False:
                     Sattack.rect.y = Sattack.rect.y + 20
 
+        #if the attack is being used
         if specialAttacking == True:
+            #sets initial direction of movement
             if directionSet == True:
                 specialTravelX = playerFacingX
                 specialTravelY = playerFacingY
+                #stops direction being changed after attack initially used
                 directionSet = False
-            if Sattack.rect.colliderect():
-            if specialTravelX == "left":
-                Sattack.rect.x = Sattack.rect.x - 25
-            if specialTravelX == "right":
-                Sattack.rect.x = Sattack.rect.x + 25
-            if specialTravelY == "up":
-                Sattack.rect.y = Sattack.rect.y - 25
-            if specialTravelY == "down":
-                Sattack.rect.y = Sattack.rect.y + 25
+            #collision detections
+            for enemy in enemies:
+                if Sattack.rect.colliderect(enemy):
+                    Scollision = True
+            for wall in walls:
+                if Sattack.rect.colliderect(wall):
+                    Scollision = True
+            for water in waters:
+                if Sattack.rect.colliderect(water):
+                    Scollision = True
+            #if it hasn't hit anything:
+            if Scollision == False:
+                #movement code
+                if specialTravelX == "left":
+                    Sattack.rect.x = Sattack.rect.x - 25
+                if specialTravelX == "right":
+                    Sattack.rect.x = Sattack.rect.x + 25
+                if specialTravelY == "up":
+                    Sattack.rect.y = Sattack.rect.y - 25
+                if specialTravelY == "down":
+                    Sattack.rect.y = Sattack.rect.y + 25
+            else:
+                #grows the special attack hitbox
+                Sattack.rect.height = Sattack.rect.height + 2
+                Sattack.rect.width = Sattack.rect.width + 2
+                #keeps the position centered whilst growing
+                Sattack.rect.x = Sattack.rect.x - 1
+                Sattack.rect.y = Sattack.rect.y -1
+            
             
     
                 
@@ -402,6 +468,16 @@ while running == True:
             HattackTimer = HattackTimer + 1
 
     #sets special attack cooldown 
+        if Scollision == True:
+            if SattackTimer > 12:
+                specialAttacking = False
+                SattackTimer = 0
+                SattackCooldown = currentTime + SattackCooldownTime
+            elif specialAttacking == True:
+                SattackTimer = SattackTimer + 1
+    
+
+    
         
         
 

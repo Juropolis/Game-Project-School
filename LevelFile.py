@@ -11,7 +11,7 @@ levels = [[
     "W                                 W",
     "WW                               WW",
     "WWW                             WWW",
-    "W                                EW",
+    "W                           N    EW",
     "W                                 W",
     "WWW                             WWW",
     "WW                               WW",

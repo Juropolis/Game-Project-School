@@ -5,6 +5,17 @@ import pygame
 class Enemy(object):
     def __init__(self, x, y):
         self.rect = pygame.Rect(x,y,30,30)
+        self.health = 80
+        #if > 0 the enemy is immune to damage
+        self.damageTimer = 0
+        #Allows attack cancelling to still work with the damageTimer
+        self.previousAttackRecieved = ""
+    
+    def recieveDamage(self, damage):
+        self.health = self.health - damage
+        if self.health < 0:
+            self.health = 0
+        
         
     def move(self, dx, dy, walls, waters, enemies, player):
         if dx != 0:
