@@ -116,6 +116,7 @@ def drawScreen(a, b, c, walls, waters):
     pygame.display.flip()
 
 #draws first level [Without this first level wont appear until after delay]
+numEnemiesRemaining = 0
 x = y = 0
 for row in levels[currentLevel]:
     for col in row:
@@ -127,6 +128,7 @@ for row in levels[currentLevel]:
             waters.append(Water(x, y))
         if col == "N":
             enemies.append(Enemy(x, y))
+            numEnemiesRemaining = numEnemiesRemaining + 1
         x += 30
     y += 30
     x = 0
@@ -292,31 +294,33 @@ while running == True:
         
         #detects if player touches the exit door
         if player.rect.colliderect(end_rect):
-            #stops code trying to load a non existent level
-            if currentLevel < maxLevel:
-                currentLevel = currentLevel + 1
-                del walls[:]
-                del waters[:]
-                del enemies[:]
-                x = y = 0
-                for row in levels[currentLevel]:
-                    for col in row:
-                        if col == "W":
-                            walls.append(Wall(x, y))
-                        if col == "E":
-                            end_rect = pygame.Rect(x,y,30,60)
-                        if col == "B":
-                            waters.append(Water(x, y))
-                        if col == "N":
-                            enemies.append(Enemy(x, y))
-
-                        x += 30
-                    y += 30 
-                    x = 0
-            elif currentLevel == maxLevel:
-                gameState = "endScreen"
-            player.rect.left = 30
-            player.rect.top = 285
+            if numEnemiesRemaining == 0:
+                #stops code trying to load a non existent level
+                if currentLevel < maxLevel:
+                    currentLevel = currentLevel + 1
+                    del walls[:]
+                    del waters[:]
+                    del enemies[:]
+                    numEnemiesRemaining = 0
+                    x = y = 0
+                    for row in levels[currentLevel]:
+                        for col in row:
+                            if col == "W":
+                                walls.append(Wall(x, y))
+                            if col == "E":
+                                end_rect = pygame.Rect(x,y,30,60)
+                            if col == "B":
+                                waters.append(Water(x, y))
+                            if col == "N":
+                                enemies.append(Enemy(x, y))
+                                numEnemiesRemaining = numEnemiesRemaining + 1
+                            x += 30
+                        y += 30 
+                        x = 0
+                elif currentLevel == maxLevel:
+                    gameState = "endScreen"
+                player.rect.left = 30
+                player.rect.top = 285
 
         #Enemy Code
         for enemy in enemies:
@@ -357,6 +361,10 @@ while running == True:
                     
             if enemy.damageTimer > 0:
                 enemy.damageTimer = enemy.damageTimer - 1
+        
+            if enemy.health == 0:       
+                enemies.remove(enemy)
+                numEnemiesRemaining = numEnemiesRemaining - 1
            
            
         
