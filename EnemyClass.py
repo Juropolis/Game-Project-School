@@ -10,6 +10,8 @@ class Enemy(object):
         self.damageTimer = 0
         #Allows attack cancelling to still work with the damageTimer
         self.previousAttackRecieved = ""
+        #Allows knockback to work
+        self.beingAttacked = False 
     
     def recieveDamage(self, damage):
         self.health = self.health - damage

@@ -111,8 +111,8 @@ def drawScreen(a, b, c, walls, waters):
     for enemy in enemies:
         pygame.draw.rect(screen, enemyColour, enemy.rect)
     pygame.draw.rect(screen, playerColour, player.rect)
-    
-    pygame.draw.rect(screen,(255,0,0),end_rect)
+    if numEnemiesRemaining == 0:
+        pygame.draw.rect(screen,(255,0,0),end_rect)
     pygame.display.flip()
 
 #draws first level [Without this first level wont appear until after delay]
@@ -326,14 +326,40 @@ while running == True:
         for enemy in enemies:
             #moves enemies
             if not enemy.rect.colliderect(player.rect):
-                if player.rect.x > enemy.rect.x:
-                    enemy.move(2, 0, walls, waters, enemies, player)
-                if player.rect.x < enemy.rect.x:
-                    enemy.move(-2, 0, walls, waters, enemies, player)
-                if player.rect.y < enemy.rect.y:
-                    enemy.move(0, -2, walls, waters, enemies, player)
-                if player.rect.y > enemy.rect.y:
-                    enemy.move(0, 2, walls, waters, enemies, player)
+                if enemy.beingAttacked == True: 
+                    if enemy.previousAttackRecieved == "Light":
+                        if player.rect.x > enemy.rect.x:
+                            enemy.move(1, 0, walls, waters, enemies, player)
+                        if player.rect.x < enemy.rect.x:
+                            enemy.move(-1, 0, walls, waters, enemies, player)
+                        if player.rect.y < enemy.rect.y:
+                            enemy.move(0, -1, walls, waters, enemies, player)
+                        if player.rect.y > enemy.rect.y:
+                            enemy.move(0, 1, walls, waters, enemies, player)
+                    if enemy.previousAttackRecieved == "Heavy":
+                        if enemy.damageTimer > 20:
+                            HknockbackS = 10
+                            if HknockbackS > 0: 
+                                if player.rect.x > enemy.rect.x:
+                                    enemy.move(-2*HknockbackS, 0, walls, waters, enemies, player)
+                                if player.rect.x < enemy.rect.x:
+                                    enemy.move(2*HknockbackS, 0, walls, waters, enemies, player)
+                                if player.rect.y < enemy.rect.y:
+                                    enemy.move(0, 2*HknockbackS, walls, waters, enemies, player)
+                                if player.rect.y > enemy.rect.y:
+                                    enemy.move(0, -2*HknockbackS, walls, waters, enemies, player)
+                                HknockbackS = HknockbackS - 3
+                    
+
+                else:
+                    if player.rect.x > enemy.rect.x:
+                        enemy.move(2, 0, walls, waters, enemies, player)
+                    if player.rect.x < enemy.rect.x:
+                        enemy.move(-2, 0, walls, waters, enemies, player)
+                    if player.rect.y < enemy.rect.y:
+                        enemy.move(0, -2, walls, waters, enemies, player)
+                    if player.rect.y > enemy.rect.y:
+                        enemy.move(0, 2, walls, waters, enemies, player)
             #calculates damage
             if enemy.rect.colliderect(Lattack.rect):
                 if enemy.damageTimer == 0:
@@ -341,6 +367,7 @@ while running == True:
                         enemy.recieveDamage(10)
                         enemy.damageTimer = LhitTimer
                         enemy.previousAttackRecieved = "Light"
+                        enemy.beingAttacked = True
                         print(enemy.health)
             if enemy.rect.colliderect(Hattack.rect):
                 #allows attack cancelling as well as hitting the same attack again
@@ -349,6 +376,7 @@ while running == True:
                         enemy.recieveDamage(20)
                         enemy.damageTimer = HhitTimer
                         enemy.previousAttackRecieved = "Heavy"
+                        enemy.beingAttacked = True
                         print(enemy.health)
             if enemy.rect.colliderect(Sattack.rect):
                 #allows attack cancelling as well as hitting the same attack again
@@ -357,6 +385,7 @@ while running == True:
                         enemy.recieveDamage(30)
                         enemy.damageTimer = ShitTimer
                         enemy.previousAttackRecieved = "Special"
+                        enemy.beingAttacked = True
                         print(enemy.health)
                     
             if enemy.damageTimer > 0:
@@ -365,6 +394,9 @@ while running == True:
             if enemy.health == 0:       
                 enemies.remove(enemy)
                 numEnemiesRemaining = numEnemiesRemaining - 1
+
+            if enemy.damageTimer == 0:
+                enemy.beingAttacked = False
            
            
         
