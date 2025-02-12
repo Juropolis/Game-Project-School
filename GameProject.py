@@ -324,9 +324,11 @@ while running == True:
 
         #Enemy Code
         for enemy in enemies:
+            
             #moves enemies
             if not enemy.rect.colliderect(player.rect):
                 if enemy.beingAttacked == True: 
+
                     if enemy.previousAttackRecieved == "Light":
                         if player.rect.x > enemy.rect.x:
                             enemy.move(1, 0, walls, waters, enemies, player)
@@ -349,8 +351,16 @@ while running == True:
                                 if player.rect.y > enemy.rect.y:
                                     enemy.move(0, -2*HknockbackS, walls, waters, enemies, player)
                                 HknockbackS = HknockbackS - 3
+                    if enemy.previousAttackRecieved == "Special":
+                        if player.rect.x > enemy.rect.x:
+                            enemy.move(0.5, 0, walls, waters, enemies, player)
+                        if player.rect.x < enemy.rect.x:
+                            enemy.move(-0.5, 0, walls, waters, enemies, player)
+                        if player.rect.y < enemy.rect.y:
+                            enemy.move(0, -0.5, walls, waters, enemies, player)
+                        if player.rect.y > enemy.rect.y:
+                            enemy.move(0, 0.5, walls, waters, enemies, player)
                     
-
                 else:
                     if player.rect.x > enemy.rect.x:
                         enemy.move(2, 0, walls, waters, enemies, player)
@@ -387,7 +397,7 @@ while running == True:
                         enemy.previousAttackRecieved = "Special"
                         enemy.beingAttacked = True
                         print(enemy.health)
-                    
+
             if enemy.damageTimer > 0:
                 enemy.damageTimer = enemy.damageTimer - 1
         
@@ -397,7 +407,22 @@ while running == True:
 
             if enemy.damageTimer == 0:
                 enemy.beingAttacked = False
-           
+
+            if enemy.rect.colliderect(player.rect):
+                print("shimmy")
+                enemy.attacking = True
+                
+            if enemy.attacking == True: 
+                print("yeaaah")
+
+                    
+            
+        
+                
+
+                
+        
+
            
         
         #sets attack box positions
@@ -477,11 +502,6 @@ while running == True:
             
     
                 
-
-
-
-
-
                     
             
     #sets dash cooldown 
@@ -516,7 +536,7 @@ while running == True:
             elif specialAttacking == True:
                 SattackTimer = SattackTimer + 1
     
-
+    
     
         
         

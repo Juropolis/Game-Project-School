@@ -12,6 +12,7 @@ class Enemy(object):
         self.previousAttackRecieved = ""
         #Allows knockback to work
         self.beingAttacked = False 
+        self.attacking = False
     
     def recieveDamage(self, damage):
         self.health = self.health - damage
