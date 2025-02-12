@@ -13,6 +13,9 @@ class Enemy(object):
         #Allows knockback to work
         self.beingAttacked = False 
         self.attacking = False
+        self.attackTimer = 0
+        self.attackCooldown = 0
+        self.drawAttackLoop = True
     
     def recieveDamage(self, damage):
         self.health = self.health - damage
@@ -60,6 +63,7 @@ class Enemy(object):
                 if dy < 0:
                     self.rect.top = Enemy.rect.bottom
         if self.rect.colliderect(player.rect):
+                self.attacking = True
                 if dx > 0:
                     self.rect.right = player.rect.left
                 if dx < 0:

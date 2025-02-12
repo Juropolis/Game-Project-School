@@ -61,6 +61,10 @@ SattackTimer = 0
 ShitTimer = 24
 Scollision = False
 
+#This is used for the Enemy attack
+EattackCooldownTime = 600
+EattackStartup = 25
+
 
 
 
@@ -83,6 +87,7 @@ Sattack = SpecialHitbox(0, 0)
 enemies = []
 walls = []
 waters = []
+enemyAttacks = []
 player.rect.left = 30
 player.rect.top = 285
 wasdMovement = False
@@ -362,14 +367,15 @@ while running == True:
                             enemy.move(0, 0.5, walls, waters, enemies, player)
                     
                 else:
-                    if player.rect.x > enemy.rect.x:
-                        enemy.move(2, 0, walls, waters, enemies, player)
-                    if player.rect.x < enemy.rect.x:
-                        enemy.move(-2, 0, walls, waters, enemies, player)
-                    if player.rect.y < enemy.rect.y:
-                        enemy.move(0, -2, walls, waters, enemies, player)
-                    if player.rect.y > enemy.rect.y:
-                        enemy.move(0, 2, walls, waters, enemies, player)
+                    if enemy.attacking == False:
+                        if player.rect.x > enemy.rect.x:
+                            enemy.move(2, 0, walls, waters, enemies, player)
+                        if player.rect.x < enemy.rect.x:
+                            enemy.move(-2, 0, walls, waters, enemies, player)
+                        if player.rect.y < enemy.rect.y:
+                            enemy.move(0, -2, walls, waters, enemies, player)
+                        if player.rect.y > enemy.rect.y:
+                            enemy.move(0, 2, walls, waters, enemies, player)
             #calculates damage
             if enemy.rect.colliderect(Lattack.rect):
                 if enemy.damageTimer == 0:
@@ -408,12 +414,13 @@ while running == True:
             if enemy.damageTimer == 0:
                 enemy.beingAttacked = False
 
-            if enemy.rect.colliderect(player.rect):
-                print("shimmy")
-                enemy.attacking = True
-                
+
             if enemy.attacking == True: 
-                print("yeaaah")
+                if enemy.attackTimer > EattackStartup and enemy.drawAttackLoop == True:
+                    print("here comes the attack")
+                    enemy.drawAttackLoop = False
+                    
+
 
                     
             
@@ -535,6 +542,21 @@ while running == True:
                 SattackCooldown = currentTime + SattackCooldownTime
             elif specialAttacking == True:
                 SattackTimer = SattackTimer + 1
+    
+    #sets enemy attack cooldown
+        for enemy in enemies:
+            if enemy.attackTimer > EattackStartup:
+                if enemy.attackTimer > EattackStartup + 40:
+                    enemy.attacking = False
+                    enemy.attackTimer = 0
+                    enemy.attackCooldown = currentTime + EattackCooldownTime
+                    enemy.drawAttackLoop = True
+                    #enemyAttacks.remove()
+                elif enemy.attacking == True:
+                    enemy.attackTimer = enemy.attackTimer + 1
+            elif enemy.attacking == True:
+                enemy.attackTimer = enemy.attackTimer + 1
+
     
     
     
