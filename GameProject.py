@@ -12,6 +12,7 @@ from EnemyClass import Enemy
 from LightHitboxClass import LightHitbox
 from HeavyHitboxClass import HeavyHitbox
 from SpecialHitboxClass import SpecialHitbox
+from EnemyHitboxClass import EnemyHitbox
 
 #variable initialising
 playerFacingX = "right"
@@ -20,6 +21,7 @@ playerColour = (204, 255, 109)
 LattackColour = (0, 255, 0)
 HattackColour = (0, 0, 255)
 SattackColour = (0, 155, 155)
+EattackColour = (255, 165, 0)
 enemyColour = (254, 69, 69)
 wallColour = (155, 155, 155)
 waterColour = (200, 250, 241)
@@ -113,6 +115,8 @@ def drawScreen(a, b, c, walls, waters):
         pygame.draw.rect(screen,wallColour,wall.rect) 
     for water in waters:
         pygame.draw.rect(screen,waterColour,water.rect)
+    for enemyAttack in enemyAttacks:
+        pygame.draw.rect(screen, EattackColour, enemyAttack.rect)
     for enemy in enemies:
         pygame.draw.rect(screen, enemyColour, enemy.rect)
     pygame.draw.rect(screen, playerColour, player.rect)
@@ -417,8 +421,12 @@ while running == True:
 
             if enemy.attacking == True: 
                 if enemy.attackTimer > EattackStartup and enemy.drawAttackLoop == True:
-                    print("here comes the attack")
                     enemy.drawAttackLoop = False
+                    enemyAttacks.append(EnemyHitbox(enemy.rect.x - 20, enemy.rect.y - 20))
+            else:
+                #fix this
+                del enemyAttacks[:]
+                    
                     
 
 
