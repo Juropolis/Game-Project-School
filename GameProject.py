@@ -194,81 +194,157 @@ while running == True:
         #player movement
         userInput = pygame.key.get_pressed()
         if dashing == False:
-            if userInput[pygame.K_a]:
+            if playerFacingX == "left":
+                
                 wasdMovement = True
-                if player.rect.x >= 3:
-                    player.move(-3, 0, walls, waters, enemies)
-                else: 
-                    player.rect.x = 0
-    
-            if userInput[pygame.K_d]:
-                wasdMovement = True
-                if player.rect.x <= width - 33:
-                    player.move(3, 0, walls, waters, enemies)
-                else:
-                    player.rect.x = width - 30
+                if playerFacingY != "Neutral":
+                    
+                    if player.rect.x >= 3:
+                        player.move(-3, 0, walls, waters, enemies)
+                    else:
+                        player.rect.x = 0
 
-            if userInput[pygame.K_w]:
-                wasdMovement = True
-                if player.rect.y >= 3:
-                    player.move(0, -3, walls, waters, enemies)
+                    if playerFacingY == "up":
+                        if player.rect.y >= 3:
+                            player.move(0, -3, walls, waters, enemies)
+                        else:
+                            player.rect.y = 0
+
+                    elif playerFacingY == "down":
+                        if player.rect.y <= height - 33:
+                            player.move(0, 3, walls, waters, enemies)
+                        else:
+                            player.rect.y = height - 30
                 else:
-                    player.rect.y = 0
-        
-            if userInput[pygame.K_s]:
+                    if player.rect.x >= 4:
+                        player.move(-4, 0, walls, waters, enemies)
+                    else:
+                        player.rect.x = 0
+
+
+            if playerFacingX == "right":
+
                 wasdMovement = True
-                if player.rect.y <= height - 33:
-                    player.move(0, 3, walls, waters, enemies)
+                if playerFacingY != "Neutral":
+                    
+                    if player.rect.x <= width - 33:
+                        player.move(3, 0, walls, waters, enemies)
+                    else:
+                        player.rect.x = 0
+
+                    if playerFacingY == "up":
+                        if player.rect.y >= 3:
+                            player.move(0, -3, walls, waters, enemies)
+                        else:
+                            player.rect.y = 0
+
+                    elif playerFacingY == "down":
+                        if player.rect.y <= height - 33:
+                            player.move(0, 3, walls, waters, enemies)
+                        else:
+                            player.rect.y = height - 30
                 else:
-                    player.rect.y = height - 30
+                    if player.rect.x <= width - 34:
+                        player.move(4, 0, walls, waters, enemies)
+                    else:
+                        player.rect.x = 0
+            
+            if playerFacingX == "Neutral":
+
+                if playerFacingY == "up":
+                        if player.rect.y >= 4:
+                            player.move(0, -4, walls, waters, enemies)
+                        else:
+                            player.rect.y = 0
+
+                elif playerFacingY == "down":
+                    if player.rect.y <= height - 34:
+                        player.move(0, 4, walls, waters, enemies)
+                    else:
+                        player.rect.y = height - 30
+
+                
+            
 
         #dash ability
         if userInput[pygame.K_SPACE] and currentTime > dashCooldown and dashing == False and (playerFacingX != "Neutral" or playerFacingY != "Neutral"):
             dashTimer = 1
             dashing = True
 
-        if dashTimer > 0:    
+        if dashTimer > 0:  
+
             if playerFacingX == "left":
-                #Loop stops player position being reset multiple times
-                dashLoop = True
-                if player.rect.x >= 20:
-                    player.move(-20, 0, walls, waters, enemies)                       
-                elif dashLoop == True:
-                    player.rect.x = 0
-                    dashLoop = False
-                        
                 
+                wasdMovement = True
+                if playerFacingY != "Neutral":
+                    
+                    if player.rect.x >= 14:
+                        player.move(-14, 0, walls, waters, enemies)
+                    else:
+                        player.rect.x = 0
+
+                    if playerFacingY == "up":
+                        if player.rect.y >= 14:
+                            player.move(0, -14, walls, waters, enemies)
+                        else:
+                            player.rect.y = 0
+
+                    elif playerFacingY == "down":
+                        if player.rect.y <= height - 44:
+                            player.move(0, 14, walls, waters, enemies)
+                        else:
+                            player.rect.y = height - 30
+                else:
+                    if player.rect.x >= 14:
+                        player.move(-14, 0, walls, waters, enemies)
+                    else:
+                        player.rect.x = 0
+
+
             if playerFacingX == "right":
-                #Loop stops player position being reset multiple times
-                dashLoop = True
-                if player.rect.x <= width - 50:
-                    player.move(20, 0, walls, waters, enemies)
-                elif dashLoop == True:
-                    player.rect.x = width - 40
-                    dashLoop = False
+
+                wasdMovement = True
+                if playerFacingY != "Neutral":
                     
-                
-            if playerFacingY == "up":
-                #Loop stops player position being reset multiple times
-                dashLoop = True
-                if player.rect.y >= 20:
-                    player.move(0, -20, walls, waters, enemies)
-                elif dashLoop == True:
-                    player.rect.y = 0
-                    dashLoop = False
-                    
-                    
-                
-            if playerFacingY == "down":
-                #Loop stops player position being reset multiple times
-                dashLoop = True
-                if player.rect.y <= height - 50:
-                    player.move(0, 20, walls, waters, enemies)               
-                elif dashLoop == True:
-                    player.rect.y = height - 40
-                    dashLoop = False
+                    if player.rect.x <= width - 44:
+                        player.move(14, 0, walls, waters, enemies)
+                    else:
+                        player.rect.x = 0
+
+                    if playerFacingY == "up":
+                        if player.rect.y >= 14:
+                            player.move(0, -14, walls, waters, enemies)
+                        else:
+                            player.rect.y = 0
+
+                    elif playerFacingY == "down":
+                        if player.rect.y <= height - 44:
+                            player.move(0, 14, walls, waters, enemies)
+                        else:
+                            player.rect.y = height - 30
+                else:
+                    if player.rect.x <= width - 44:
+                        player.move(14, 0, walls, waters, enemies)
+                    else:
+                        player.rect.x = 0
+            
+            if playerFacingX == "Neutral":
+
+                if playerFacingY == "up":
+                        if player.rect.y >= 20:
+                            player.move(0, -20, walls, waters, enemies)
+                        else:
+                            player.rect.y = 0
+
+                elif playerFacingY == "down":
+                    if player.rect.y <= height - 50:
+                        player.move(0, 20, walls, waters, enemies)
+                    else:
+                        player.rect.y = height - 30
         else:
             dashing = False
+
+        
         
         #Keybind for LightAttacking
         if userInput[pygame.K_u] and currentTime > LattackCooldown and currentTime > HattackCooldown and currentTime > SattackCooldown and lightAttacking == False and heavyAttacking == False and specialAttacking == False:
@@ -340,13 +416,29 @@ while running == True:
 
                     if enemy.previousAttackRecieved == "Light":
                         if player.rect.x > enemy.rect.x:
-                            enemy.move(1, 0, walls, waters, enemies, player)
+                            if player.rect.y != enemy.rect.y:
+                                enemy.move(0.7, 0, walls, waters, enemies, player)
+                                if player.rect.y < enemy.rect.y:
+                                    enemy.move(0, -0.7, walls, waters, enemies, player)
+                                if player.rect.y > enemy.rect.y:
+                                    enemy.move(0, 0.7, walls, waters, enemies, player) 
+                            else:
+                                enemy.move(1, 0, walls, waters, enemies, player)
                         if player.rect.x < enemy.rect.x:
-                            enemy.move(-1, 0, walls, waters, enemies, player)
-                        if player.rect.y < enemy.rect.y:
-                            enemy.move(0, -1, walls, waters, enemies, player)
-                        if player.rect.y > enemy.rect.y:
-                            enemy.move(0, 1, walls, waters, enemies, player)
+                            if player.rect.y != enemy.rect.y:
+                                enemy.move(-0.7, 0, walls, waters, enemies, player)
+                                if player.rect.y < enemy.rect.y:
+                                    enemy.move(0, -0.7, walls, waters, enemies, player)
+                                if player.rect.y > enemy.rect.y:
+                                    enemy.move(0, 0.7, walls, waters, enemies, player) 
+                            else:
+                                enemy.move(-1, 0, walls, waters, enemies, player)
+                        else:
+                            if player.rect.y < enemy.rect.y:
+                                enemy.move(0, -1, walls, waters, enemies, player)
+                            if player.rect.y > enemy.rect.y:
+                                enemy.move(0, 1, walls, waters, enemies, player)
+
                     if enemy.previousAttackRecieved == "Heavy":
                         if enemy.damageTimer > 20:
                             HknockbackS = 10
@@ -411,21 +503,38 @@ while running == True:
             if enemy.damageTimer > 0:
                 enemy.damageTimer = enemy.damageTimer - 1
         
-            if enemy.health == 0:       
+            if enemy.health == 0:
+                for attack in enemyAttacks:
+                    #identifies which enemy the attack belongs to
+                    if attack.owner == enemy:
+                        #removes the attack belonging to a specific enemy
+                        enemyAttacks.remove(attack)       
                 enemies.remove(enemy)
                 numEnemiesRemaining = numEnemiesRemaining - 1
 
+            #recognises if the enemy is being hit by the players attacks
             if enemy.damageTimer == 0:
                 enemy.beingAttacked = False
 
-
+            #if enemy is using an attack
             if enemy.attacking == True: 
                 if enemy.attackTimer > EattackStartup and enemy.drawAttackLoop == True:
+                    #stops multiple attacks being added per enemy
                     enemy.drawAttackLoop = False
-                    enemyAttacks.append(EnemyHitbox(enemy.rect.x - 20, enemy.rect.y - 20))
+                    #adds attack to list to be drawn
+                    enemyAttacks.append(EnemyHitbox(enemy.rect.x - 20, enemy.rect.y - 20, enemy))
             else:
-                #fix this
-                del enemyAttacks[:]
+                for attack in enemyAttacks:
+                    #identifies which enemy the attack belongs to
+                    if attack.owner == enemy:
+                        #removes the attack belonging to a specific enemy
+                        enemyAttacks.remove(attack)
+
+            for attack in enemyAttacks:
+                    #identifies which enemy the attack belongs to
+                    if attack.owner == enemy:
+                        attack.rect.x = enemy.rect.x - 20
+                        attack.rect.y = enemy.rect.y - 20
                     
                     
 
