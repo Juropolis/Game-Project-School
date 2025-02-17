@@ -13,6 +13,7 @@ from LightHitboxClass import LightHitbox
 from HeavyHitboxClass import HeavyHitbox
 from SpecialHitboxClass import SpecialHitbox
 from EnemyHitboxClass import EnemyHitbox
+from EnemyHealthbarClass import EnemyHealthbar
 
 #variable initialising
 playerFacingX = "right"
@@ -90,6 +91,7 @@ enemies = []
 walls = []
 waters = []
 enemyAttacks = []
+enemyHealthbars = []
 player.rect.left = 30
 player.rect.top = 285
 wasdMovement = False
@@ -402,6 +404,9 @@ while running == True:
                             x += 30
                         y += 30 
                         x = 0
+                    for enemy in enemies:
+                        enemyHealthbars.append(EnemyHealthbar(x, y, enemy))
+
                 elif currentLevel == maxLevel:
                     gameState = "endScreen"
                 player.rect.left = 30
@@ -443,35 +448,84 @@ while running == True:
                         if enemy.damageTimer > 20:
                             HknockbackS = 10
                             if HknockbackS > 0: 
+
                                 if player.rect.x > enemy.rect.x:
-                                    enemy.move(-2*HknockbackS, 0, walls, waters, enemies, player)
+                                    if player.rect.y != enemy.rect.y:
+                                        enemy.move(-1.4*HknockbackS, 0, walls, waters, enemies, player)
+                                        if player.rect.y < enemy.rect.y:
+                                            enemy.move(0, 1.4*HknockbackS, walls, waters, enemies, player)
+                                        if player.rect.y > enemy.rect.y:
+                                            enemy.move(0, -1.4*HknockbackS, walls, waters, enemies, player)
+                                    else:
+                                        enemy.move(-2*HknockbackS, 0, walls, waters, enemies, player)
                                 if player.rect.x < enemy.rect.x:
-                                    enemy.move(2*HknockbackS, 0, walls, waters, enemies, player)
-                                if player.rect.y < enemy.rect.y:
-                                    enemy.move(0, 2*HknockbackS, walls, waters, enemies, player)
-                                if player.rect.y > enemy.rect.y:
-                                    enemy.move(0, -2*HknockbackS, walls, waters, enemies, player)
+                                    if player.rect.y != enemy.rect.y:
+                                        enemy.move(1.4*HknockbackS, 0, walls, waters, enemies, player)
+                                        if player.rect.y < enemy.rect.y:
+                                            enemy.move(0, 1.4*HknockbackS, walls, waters, enemies, player)
+                                        if player.rect.y > enemy.rect.y:
+                                            enemy.move(0, -1.4*HknockbackS, walls, waters, enemies, player)
+                                    else:
+                                        enemy.move(2*HknockbackS, 0, walls, waters, enemies, player)
+                                else:
+                                    if player.rect.y < enemy.rect.y:
+                                        enemy.move(0, 2*HknockbackS, walls, waters, enemies, player)
+                                    if player.rect.y > enemy.rect.y:
+                                        enemy.move(0, -2*HknockbackS, walls, waters, enemies, player)
                                 HknockbackS = HknockbackS - 3
                     if enemy.previousAttackRecieved == "Special":
+
                         if player.rect.x > enemy.rect.x:
-                            enemy.move(0.5, 0, walls, waters, enemies, player)
+                            if player.rect.y != enemy.rect.y:
+                                enemy.move(0.6, 0, walls, waters, enemies, player)
+                                if player.rect.y < enemy.rect.y:
+                                    enemy.move(0, -0.6, walls, waters, enemies, player)
+                                if player.rect.y > enemy.rect.y:
+                                    enemy.move(0, 0.6, walls, waters, enemies, player) 
+                            else:
+                                enemy.move(0.9, 0, walls, waters, enemies, player)
                         if player.rect.x < enemy.rect.x:
-                            enemy.move(-0.5, 0, walls, waters, enemies, player)
-                        if player.rect.y < enemy.rect.y:
-                            enemy.move(0, -0.5, walls, waters, enemies, player)
-                        if player.rect.y > enemy.rect.y:
-                            enemy.move(0, 0.5, walls, waters, enemies, player)
+                            if player.rect.y != enemy.rect.y:
+                                enemy.move(-0.6, 0, walls, waters, enemies, player)
+                                if player.rect.y < enemy.rect.y:
+                                    enemy.move(0, -0.6, walls, waters, enemies, player)
+                                if player.rect.y > enemy.rect.y:
+                                    enemy.move(0, 0.6, walls, waters, enemies, player) 
+                            else:
+                                enemy.move(-0.9, 0, walls, waters, enemies, player)
+                        else:
+                            if player.rect.y < enemy.rect.y:
+                                enemy.move(0, -0.9, walls, waters, enemies, player)
+                            if player.rect.y > enemy.rect.y:
+                                enemy.move(0, 0.9, walls, waters, enemies, player)
                     
                 else:
                     if enemy.attacking == False:
+
                         if player.rect.x > enemy.rect.x:
-                            enemy.move(2, 0, walls, waters, enemies, player)
-                        if player.rect.x < enemy.rect.x:
-                            enemy.move(-2, 0, walls, waters, enemies, player)
-                        if player.rect.y < enemy.rect.y:
-                            enemy.move(0, -2, walls, waters, enemies, player)
-                        if player.rect.y > enemy.rect.y:
-                            enemy.move(0, 2, walls, waters, enemies, player)
+                            if player.rect.y != enemy.rect.y:
+                                enemy.move(2, 0, walls, waters, enemies, player)
+                                if player.rect.y < enemy.rect.y:
+                                    enemy.move(0, -2, walls, waters, enemies, player)
+                                if player.rect.y > enemy.rect.y:
+                                    enemy.move(0, 2, walls, waters, enemies, player) 
+                            else:
+                                enemy.move(3, 0, walls, waters, enemies, player)
+                        elif player.rect.x < enemy.rect.x:
+                            if player.rect.y != enemy.rect.y:
+                                enemy.move(-2, 0, walls, waters, enemies, player)
+                                if player.rect.y < enemy.rect.y:
+                                    enemy.move(0, -2, walls, waters, enemies, player)
+                                if player.rect.y > enemy.rect.y:
+                                    enemy.move(0, 2, walls, waters, enemies, player) 
+                            else:
+                                enemy.move(-3, 0, walls, waters, enemies, player)
+                        else:
+                            if player.rect.y < enemy.rect.y:
+                                enemy.move(0, -3, walls, waters, enemies, player)
+                            if player.rect.y > enemy.rect.y:
+                                enemy.move(0, 3, walls, waters, enemies, player)
+
             #calculates damage
             if enemy.rect.colliderect(Lattack.rect):
                 if enemy.damageTimer == 0:
@@ -536,12 +590,7 @@ while running == True:
                         attack.rect.x = enemy.rect.x - 20
                         attack.rect.y = enemy.rect.y - 20
                     
-                    
-
-
-                    
-            
-        
+                   
                 
 
                 
@@ -608,13 +657,29 @@ while running == True:
             if Scollision == False:
                 #movement code
                 if specialTravelX == "left":
-                    Sattack.rect.x = Sattack.rect.x - 25
-                if specialTravelX == "right":
-                    Sattack.rect.x = Sattack.rect.x + 25
-                if specialTravelY == "up":
-                    Sattack.rect.y = Sattack.rect.y - 25
-                if specialTravelY == "down":
-                    Sattack.rect.y = Sattack.rect.y + 25
+                    if specialTravelY == "up":
+                        Sattack.rect.y = Sattack.rect.y - 18
+                        Sattack.rect.x = Sattack.rect.x - 18
+                    elif specialTravelY == "down":
+                        Sattack.rect.y = Sattack.rect.y + 18
+                        Sattack.rect.x = Sattack.rect.x - 18
+                    else:
+                        Sattack.rect.x = Sattack.rect.x - 25
+
+                elif specialTravelX == "right":
+                    if specialTravelY == "up":
+                        Sattack.rect.y = Sattack.rect.y - 18
+                        Sattack.rect.x = Sattack.rect.x + 18
+                    elif specialTravelY == "down":
+                        Sattack.rect.y = Sattack.rect.y + 18
+                        Sattack.rect.x = Sattack.rect.x + 18
+                    else:
+                        Sattack.rect.x = Sattack.rect.x + 25
+                else:
+                    if specialTravelY == "up":
+                        Sattack.rect.y = Sattack.rect.y - 25
+                    if specialTravelY == "down":
+                        Sattack.rect.y = Sattack.rect.y + 25
             else:
                 #grows the special attack hitbox
                 Sattack.rect.height = Sattack.rect.height + 2
