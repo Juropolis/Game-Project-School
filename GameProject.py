@@ -14,6 +14,7 @@ from HeavyHitboxClass import HeavyHitbox
 from SpecialHitboxClass import SpecialHitbox
 from EnemyHitboxClass import EnemyHitbox
 from EnemyHealthbarClass import EnemyHealthbar
+from EnemyHealthbarBgroundClass import EnemyHealthbarBground
 
 #variable initialising
 playerFacingX = "right"
@@ -26,6 +27,7 @@ EattackColour = (255, 165, 0)
 enemyColour = (254, 69, 69)
 wallColour = (155, 155, 155)
 waterColour = (200, 250, 241)
+healthColour = (100, 255, 100)
 currentScore = 0
 gameState = "menus"
 currentLevel = 0
@@ -92,6 +94,7 @@ walls = []
 waters = []
 enemyAttacks = []
 enemyHealthbars = []
+enemyHealthbarBgrounds = []
 player.rect.left = 30
 player.rect.top = 285
 wasdMovement = False
@@ -121,6 +124,11 @@ def drawScreen(a, b, c, walls, waters):
         pygame.draw.rect(screen, EattackColour, enemyAttack.rect)
     for enemy in enemies:
         pygame.draw.rect(screen, enemyColour, enemy.rect)
+    for enemyHealthbarBground in enemyHealthbarBgrounds:
+        pygame.draw.rect(screen, (0,0,0), enemyHealthbarBground.rect)
+    for enemyHealthbar in enemyHealthbars:
+        pygame.draw.rect(screen, healthColour, enemyHealthbar.rect)
+
     pygame.draw.rect(screen, playerColour, player.rect)
     if numEnemiesRemaining == 0:
         pygame.draw.rect(screen,(255,0,0),end_rect)
@@ -143,6 +151,10 @@ for row in levels[currentLevel]:
         x += 30
     y += 30
     x = 0
+for enemy in enemies:
+    enemyHealthbars.append(EnemyHealthbar(enemy.rect.x - 25, enemy.rect.y - 20, enemy))
+    enemyHealthbarBgrounds.append(EnemyHealthbarBground(enemy.rect.x - 25, enemy.rect.y - 20, enemy))
+
 
 #start game
 running = True
@@ -388,6 +400,7 @@ while running == True:
                     del walls[:]
                     del waters[:]
                     del enemies[:]
+                    del enemyHealthbars[:]
                     numEnemiesRemaining = 0
                     x = y = 0
                     for row in levels[currentLevel]:
@@ -405,7 +418,8 @@ while running == True:
                         y += 30 
                         x = 0
                     for enemy in enemies:
-                        enemyHealthbars.append(EnemyHealthbar(x, y, enemy))
+                        enemyHealthbars.append(EnemyHealthbar(enemy.rect.x - 25, enemy.rect.y - 20, enemy))
+                        enemyHealthbarBgrounds.append(EnemyHealthbarBground(enemy.rect.x - 25, enemy.rect.y - 20, enemy))
 
                 elif currentLevel == maxLevel:
                     gameState = "endScreen"
@@ -562,9 +576,24 @@ while running == True:
                     #identifies which enemy the attack belongs to
                     if attack.owner == enemy:
                         #removes the attack belonging to a specific enemy
-                        enemyAttacks.remove(attack)       
+                        enemyAttacks.remove(attack) 
+                for enemyHealthbarBground in enemyHealthbarBgrounds:
+                    #identifies which enemy the healthbar belongs to
+                    if enemyHealthbarBground.owner == enemy:
+                        enemyHealthbarBgrounds.remove(enemyHealthbarBground)  
+                for enemyHealthbar in enemyHealthbars:
+                    #identifies which enemy the healthbar belongs to
+                    if enemyHealthbar.owner == enemy:
+                        enemyHealthbars.remove(enemyHealthbar) 
+                    
                 enemies.remove(enemy)
                 numEnemiesRemaining = numEnemiesRemaining - 1
+            else:
+                for enemyHealthbar in enemyHealthbars:
+                    #identifies which enemy the healthbar belongs to
+                    if enemyHealthbar.owner == enemy:
+                        enemyHealthbar.rect.width = enemy.health
+
 
             #recognises if the enemy is being hit by the players attacks
             if enemy.damageTimer == 0:
@@ -585,10 +614,22 @@ while running == True:
                         enemyAttacks.remove(attack)
 
             for attack in enemyAttacks:
-                    #identifies which enemy the attack belongs to
-                    if attack.owner == enemy:
-                        attack.rect.x = enemy.rect.x - 20
-                        attack.rect.y = enemy.rect.y - 20
+                #identifies which enemy the attack belongs to
+                if attack.owner == enemy:
+                    attack.rect.x = enemy.rect.x - 20
+                    attack.rect.y = enemy.rect.y - 20
+            
+            for enemyHealthbar in enemyHealthbars:
+                if enemyHealthbar.owner == enemy:
+                    enemyHealthbar.rect.x = enemy.rect.x - 25
+                    enemyHealthbar.rect.y = enemy.rect.y - 20
+            
+            for enemyHealthbarBground in enemyHealthbarBgrounds:
+                if enemyHealthbarBground.owner == enemy:
+                    enemyHealthbarBground.rect.x = enemy.rect.x - 25
+                    enemyHealthbarBground.rect.y = enemy.rect.y - 20
+
+
                     
                    
                 
@@ -749,11 +790,11 @@ while running == True:
     playerFacingY = "Neutral"              
     #draw screen
     if gameState == "endScreen":
-        drawBlankScreen(0, 0, 0)
+        drawBlankScreen(60, 60, 60)
     elif gameState == "menus":
         drawBlankScreen(255, 255, 255)
     else:
-        drawScreen(0, 0, 0, walls, waters)
+        drawScreen(60, 60, 60, walls, waters)
 
     
 
