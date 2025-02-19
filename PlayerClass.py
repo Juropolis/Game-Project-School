@@ -4,7 +4,16 @@ import pygame
 class Player(object):
     def __init__(self):
         self.rect = pygame.Rect(30,30,30,30)
-        
+        self.health = 100
+        self.damageTimer = 0
+        self.beingAttacked = False 
+
+    #reduces players health with a minimum of 0
+    def recieveDamage(self, damage):
+        self.health = self.health - damage
+        if self.health < 0:
+            self.health = 0
+    
     def move(self, dx, dy, walls, waters, enemies):
         if dx != 0:
             self.move_single_axis(dx, 0, walls, waters, enemies)

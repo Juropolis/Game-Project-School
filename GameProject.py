@@ -80,9 +80,8 @@ pygame.init()
 #set up display
 pygame.display.set_caption("Upgraded")
 width = 1050
-height = 600
+height = 720
 screen = pygame.display.set_mode((width, height))
-
 #initiate classes
 clock = pygame.time.Clock()
 player = Player()
@@ -128,7 +127,7 @@ def drawScreen(a, b, c, walls, waters):
         pygame.draw.rect(screen, (0,0,0), enemyHealthbarBground.rect)
     for enemyHealthbar in enemyHealthbars:
         pygame.draw.rect(screen, healthColour, enemyHealthbar.rect)
-
+    pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(0,600,1050,120))
     pygame.draw.rect(screen, playerColour, player.rect)
     if numEnemiesRemaining == 0:
         pygame.draw.rect(screen,(255,0,0),end_rect)
@@ -385,12 +384,24 @@ while running == True:
             #stops cube from becoming massive overtime
             Sattack.rect.height = 60
             Sattack.rect.width = 60
-                
-                  
-                    
 
+
+        #manages player being attacked
+        if  player.damageTimer == 0:
+                player.beingAttacked = False 
         
-        
+        #decreases enemy timer
+        if player.damageTimer > 0:
+                player.damageTimer = player.damageTimer - 1
+
+        #Manages enemy attacks 
+        for attack in enemyAttacks:
+            if attack.rect.colliderect(player.rect) and player.beingAttacked == False:
+                player.beingAttacked = True
+                player.damageTimer = 80
+                player.recieveDamage(15)
+                print(player.health)
+       
         #detects if player touches the exit door
         if player.rect.colliderect(end_rect):
             if numEnemiesRemaining == 0:
@@ -539,6 +550,8 @@ while running == True:
                                 enemy.move(0, -3, walls, waters, enemies, player)
                             if player.rect.y > enemy.rect.y:
                                 enemy.move(0, 3, walls, waters, enemies, player)
+            
+            
 
             #calculates damage
             if enemy.rect.colliderect(Lattack.rect):
@@ -619,24 +632,28 @@ while running == True:
                     attack.rect.x = enemy.rect.x - 20
                     attack.rect.y = enemy.rect.y - 20
             
+            #positions health bars
             for enemyHealthbar in enemyHealthbars:
                 if enemyHealthbar.owner == enemy:
                     enemyHealthbar.rect.x = enemy.rect.x - 25
                     enemyHealthbar.rect.y = enemy.rect.y - 20
             
+            #positions health bar backgrounds
             for enemyHealthbarBground in enemyHealthbarBgrounds:
                 if enemyHealthbarBground.owner == enemy:
                     enemyHealthbarBground.rect.x = enemy.rect.x - 25
                     enemyHealthbarBground.rect.y = enemy.rect.y - 20
 
 
+            
                     
+
                    
                 
 
                 
         
-
+        
            
         
         #sets attack box positions
@@ -780,7 +797,9 @@ while running == True:
             elif enemy.attacking == True:
                 enemy.attackTimer = enemy.attackTimer + 1
 
-    
+    #checks if the player has died
+    if player.health == 0:
+        gameState = "endScreen"
     
     
         
@@ -790,7 +809,7 @@ while running == True:
     playerFacingY = "Neutral"              
     #draw screen
     if gameState == "endScreen":
-        drawBlankScreen(60, 60, 60)
+        drawBlankScreen(20, 20, 20)
     elif gameState == "menus":
         drawBlankScreen(255, 255, 255)
     else:
