@@ -44,7 +44,6 @@ difficultyOption = 2
 volumeOption = 2
 
 
-
 #score variables
 Score = 0
 roomTimer = 0
@@ -153,8 +152,8 @@ SettingsExitIMG = pygame.transform.scale(SettingsExitIMG, (720, 720))
 EasyTextIMG = pygame.image.load('EasyText.png')
 EasyTextIMG = pygame.transform.scale(EasyTextIMG, (160, 30))
 MediumTextIMG = pygame.image.load('MediumText.png')
+MediumTextIMG = pygame.transform.scale(MediumTextIMG, (240, 30))
 MediumTextVolIMG = pygame.transform.scale(MediumTextIMG, (240, 30))
-MediumTextDifIMG = pygame.transform.scale(MediumTextIMG, (240, 30))
 HardTextIMG = pygame.image.load('HardText.png')
 HardTextIMG = pygame.transform.scale(HardTextIMG, (160, 30))
 LowTextIMG = pygame.image.load('LowText.png')
@@ -167,6 +166,15 @@ PauseControlsIMG = pygame.image.load('PauseControls.png')
 PauseControlsIMG = pygame.transform.scale(PauseControlsIMG, (720, 720))
 PauseResumeIMG = pygame.image.load('PauseResume.png')
 PauseResumeIMG = pygame.transform.scale(PauseResumeIMG, (720, 720))
+ShopToxicIMG = pygame.image.load('ShopToxic.png')
+ShopToxicIMG = pygame.transform.scale(ShopToxicIMG, (1050, 720))
+ShopGaleIMG = pygame.image.load('ShopGale.png')
+ShopGaleIMG = pygame.transform.scale(ShopGaleIMG, (1050, 720))
+ShopChargerIMG = pygame.image.load('ShopCharger.png')
+ShopChargerIMG = pygame.transform.scale(ShopChargerIMG, (1050, 720))
+ShopExitIMG = pygame.image.load('ShopExit.png')
+ShopExitIMG = pygame.transform.scale(ShopExitIMG, (1050, 720))
+
 
 #text variable initialisation
 scoreText = font.render("", True, (225, 225, 225))
@@ -204,16 +212,17 @@ def drawMenus():
         if volumeOption == 1:
             screen.blit(LowTextIMG, (565, 235))
         if volumeOption == 2:
-            screen.blit(MediumTextVolIMG, (530, 238))
+            screen.blit(MediumTextIMG, (530, 238))
         if volumeOption == 3:
             screen.blit(HighTextIMG, (565, 235))
         if difficultyOption == 1:
             screen.blit(EasyTextIMG, (570, 428))
         if difficultyOption == 2:
-            screen.blit(MediumTextDifIMG, (530, 428))
+            screen.blit(MediumTextIMG, (530, 428))
         if difficultyOption == 3:
             screen.blit(HardTextIMG, (570, 428))
     if gameState == "paused":
+
         if menuOption == 1:
             screen.blit(PauseVolumeIMG, (165, 0))
         if menuOption == 2:
@@ -230,6 +239,16 @@ def drawMenus():
             screen.blit(HighTextIMG, (570, 278))
     if gameState == "controls":
         screen.fill((200, 150, 200))
+    if gameState == "shop":
+        screen.fill((200, 150, 200))
+        if menuOption == 1:
+            screen.blit(ShopToxicIMG, (0, 0))
+        if menuOption == 2:
+            screen.blit(ShopGaleIMG, (0, 0))
+        if menuOption == 3:
+            screen.blit(ShopChargerIMG, (0, 0))
+        if menuOption == 4:
+            screen.blit(ShopExitIMG, (0, 0))
     if gameState == "endScreen":
             drawBlankScreen(20, 20, 20)
     pygame.display.flip()
@@ -276,7 +295,7 @@ def logBase3(x):
     return  math.log(x) / math.log(3)
 
 
-
+currentTime = 0
 
 
 #start game
@@ -301,7 +320,8 @@ while running == True:
 
     
     #sets to current game time
-    currentTime = pygame.time.get_ticks()
+    if gameState != "paused" and gameState != "controls":
+        currentTime = currentTime + 15
 
     userInput = pygame.key.get_pressed()
     
@@ -358,7 +378,6 @@ while running == True:
         if userInput[pygame.K_RETURN]:
             if menuCooldown == 0:
                 if menuOption == 3:
-                    print("exit")
                     gameState = "startMenu"
                     menuOption = 2
                     pygame.event.clear(pygame.KEYDOWN)
@@ -623,7 +642,7 @@ while running == True:
                 if currentLevel != -1:
                     #calculates score based on time
                     Score = Score + int((10000 - 1000*logBase3(roomTimer // 60)))
-                roomTimer = 0
+                roomTimer = 60
                 Score = (Score // 100) * 100 
 
                 #stops code trying to load a non existent level
@@ -656,6 +675,7 @@ while running == True:
                     
                     else:
                         gameState = "shop"
+                        menuOption = 1
                         shopsVisited = shopsVisited + 1
 
                 elif currentLevel == maxLevel:
@@ -1104,6 +1124,43 @@ while running == True:
             if menuCooldown == 0:
                 gameState = "paused"
                 menuCooldown = 15
+
+    if gameState == "shop":
+
+        if userInput[pygame.K_w]:
+            if menuCooldown == 0:
+                menuCooldown = 15
+                if menuOption == 1:
+                    menuOption = 4
+                else:
+                    menuOption = menuOption - 1
+        if userInput[pygame.K_s]:
+            if menuCooldown == 0:
+                menuCooldown = 15
+                if menuOption == 4:
+                    menuOption = 1
+                else:
+                    menuOption = menuOption + 1
+
+        if userInput[pygame.K_RETURN]:
+            if menuCooldown == 0:
+                menuCooldown = 15
+                if menuOption == 1:
+                    print("toxic")
+                if menuOption == 2:
+                    print("gale")
+                if menuOption == 3:
+                    print("charger")
+                if menuOption == 4:
+                    end_rect = pygame.Rect(0,0,30,30)
+                    currentLevel = currentLevel + 1
+                    player.rect.x = 0
+                    player.rect.y = 0
+                    drawBlankScreen(0, 0, 0)
+                    gameState = "playing"
+                    
+    
+
 
                 
             

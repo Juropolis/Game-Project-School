@@ -11,7 +11,7 @@ levels = [[
     "W                                 W",
     "WW                               WW",
     "WWW                             WWW",
-    "W                          N     EW",
+    "W                                EW",
     "W                                 W",
     "WWW                             WWW",
     "WW                               WW",
@@ -31,10 +31,10 @@ levels = [[
     "W                                 W", 
     "W                                 W",
     "WW                               WW",
-    "WWW                         N   WWW",
+    "WWW                             WWW",
     "W                                EW",
     "W                                 W",
-    "WWW                         N   WWW",
+    "WWW                             WWW",
     "WW                               WW",
     "W                                 W",
     "W                                 W",
@@ -45,7 +45,7 @@ levels = [[
     "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 ],[
     "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-    "W                       N         W",
+    "W                                 W",
     "W                                 W",
     "W                                 W",
     "W                                 W",
@@ -53,7 +53,7 @@ levels = [[
     "W                                 W",
     "WW                               WW",
     "WWW            BBBBBB           WWW",
-    "W              BBBBBB N          EW",
+    "W              BBBBBB            EW",
     "W              BBBBBB             W",
     "WWW                             WWW",
     "WW                               WW",
@@ -62,7 +62,7 @@ levels = [[
     "W                                 W",
     "W                                 W",
     "W                                 W",
-    "W                       N         W",
+    "W                                 W",
     "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 ],[
     "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
