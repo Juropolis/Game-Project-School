@@ -4,6 +4,8 @@ import os
 import pygame
 import time
 import random
+import math
+from pygame import mixer
 from PlayerClass import Player
 from WallClass import Wall
 from LevelFile import levels
@@ -15,6 +17,10 @@ from SpecialHitboxClass import SpecialHitbox
 from EnemyHitboxClass import EnemyHitbox
 from EnemyHealthbarClass import EnemyHealthbar
 from EnemyHealthbarBgroundClass import EnemyHealthbarBground
+from PlayerHealthBarClass import PlayerHealthbar
+from PlayerHealthbarBgroundClass import PlayerHealthbarBground
+from CoinClass import Coin
+
 
 #variable initialising
 playerFacingX = "right"
@@ -28,9 +34,32 @@ enemyColour = (254, 69, 69)
 wallColour = (155, 155, 155)
 waterColour = (200, 250, 241)
 healthColour = (100, 255, 100)
+coinColour = (250, 220, 90)
 currentScore = 0
-gameState = "menus"
-currentLevel = 0
+gameState = "startMenu"
+currentLevel = -1
+menuOption = 2
+menuCooldown = 0
+difficultyOption = 2
+volumeOption = 2
+
+
+
+#score variables
+Score = 0
+roomTimer = 0
+
+#Money/Shop variables
+Money = 0
+shopsVisited = 0
+
+
+#initialise music player
+mixer.init()
+#load background music
+mixer.music.load("BackgroundMusic.mp3")
+
+
 
 #Attacking Variables
 lightAttacking = False
@@ -61,7 +90,7 @@ HhitTimer = 32
 
 #This is used for the Special attack
 SattackCooldown = 0
-SattackCooldownTime = 2200
+SattackCooldownTime = 2600
 SattackTimer = 0
 ShitTimer = 24
 Scollision = False
@@ -77,6 +106,9 @@ EattackStartup = 25
 os.environ["SDL_VIDEO_CENTERED"] = "1"
 pygame.init()
 
+#text display variables MUST BE BELOW PYGAME.INIT()
+font = pygame.font.Font(None, 54)
+
 #set up display
 pygame.display.set_caption("Upgraded")
 width = 1050
@@ -88,21 +120,119 @@ player = Player()
 Lattack = LightHitbox(0, 0) 
 Hattack = HeavyHitbox(0, 0)
 Sattack = SpecialHitbox(0, 0)
+playerHealthbar = PlayerHealthbar(120, 635)
+playerHealthbarBground = PlayerHealthbarBground(120, 635)
 enemies = []
 walls = []
 waters = []
 enemyAttacks = []
 enemyHealthbars = []
 enemyHealthbarBgrounds = []
+Coins = []
 player.rect.left = 30
 player.rect.top = 285
 wasdMovement = False
+numEnemiesRemaining = 0
+end_rect = pygame.Rect(0,0,0,0)
+
+#images
+heartIMG = pygame.image.load('Heart.png')
+heartIMG = pygame.transform.scale(heartIMG, (70, 70))
+MenuStartIMG = pygame.image.load('MenuStart.png')
+MenuStartIMG = pygame.transform.scale(MenuStartIMG, (1050, 720))
+MenuSettingsIMG = pygame.image.load('MenuSettings.png')
+MenuSettingsIMG = pygame.transform.scale(MenuSettingsIMG, (1050, 720))
+MenuLeaderboardIMG = pygame.image.load('MenuLeaderboard.png')
+MenuLeaderboardIMG = pygame.transform.scale(MenuLeaderboardIMG, (1050, 720))
+SettingsVolumeIMG = pygame.image.load('SettingsVolume.png')
+SettingsVolumeIMG = pygame.transform.scale(SettingsVolumeIMG, (720, 720))
+SettingsDifficultyIMG = pygame.image.load('SettingsDifficulty.png')
+SettingsDifficultyIMG = pygame.transform.scale(SettingsDifficultyIMG, (720, 720))
+SettingsExitIMG = pygame.image.load('SettingsExit.png')
+SettingsExitIMG = pygame.transform.scale(SettingsExitIMG, (720, 720))
+EasyTextIMG = pygame.image.load('EasyText.png')
+EasyTextIMG = pygame.transform.scale(EasyTextIMG, (160, 30))
+MediumTextIMG = pygame.image.load('MediumText.png')
+MediumTextVolIMG = pygame.transform.scale(MediumTextIMG, (240, 30))
+MediumTextDifIMG = pygame.transform.scale(MediumTextIMG, (240, 30))
+HardTextIMG = pygame.image.load('HardText.png')
+HardTextIMG = pygame.transform.scale(HardTextIMG, (160, 30))
+LowTextIMG = pygame.image.load('LowText.png')
+LowTextIMG = pygame.transform.scale(LowTextIMG, (160, 30))
+HighTextIMG = pygame.image.load('HighText.png')
+HighTextIMG = pygame.transform.scale(HighTextIMG, (160, 30))
+PauseVolumeIMG = pygame.image.load('PauseVolume.png')
+PauseVolumeIMG = pygame.transform.scale(PauseVolumeIMG, (720, 720))
+PauseControlsIMG = pygame.image.load('PauseControls.png')
+PauseControlsIMG = pygame.transform.scale(PauseControlsIMG, (720, 720))
+PauseResumeIMG = pygame.image.load('PauseResume.png')
+PauseResumeIMG = pygame.transform.scale(PauseResumeIMG, (720, 720))
+
+#text variable initialisation
+scoreText = font.render("", True, (225, 225, 225))
+moneyText = font.render("", True, (225, 225, 225))
+
+
+
+
+
+
 
 #draws the screen excluding the player 
 def drawBlankScreen(a, b, c):
     screen.fill((a, b, c))
     pygame.draw.rect(screen, playerColour, pygame.Rect(0,0,0,0))
     pygame.display.flip() 
+
+#draws any menu related screens
+def drawMenus():
+    if gameState == "startMenu":
+        if menuOption == 1:
+            screen.blit(MenuSettingsIMG, (0, 0))
+        if menuOption == 2:
+            screen.blit(MenuStartIMG, (0, 0))
+        if menuOption == 3:
+            screen.blit(MenuLeaderboardIMG, (0, 0)) 
+    if gameState == "settings":
+        screen.fill((200, 150, 200))
+        if menuOption == 1:
+            screen.blit(SettingsVolumeIMG, (165,0))
+        if menuOption == 2:
+            screen.blit(SettingsDifficultyIMG, (165,0))
+        if menuOption == 3:
+            screen.blit(SettingsExitIMG, (165,0))
+        if volumeOption == 1:
+            screen.blit(LowTextIMG, (565, 235))
+        if volumeOption == 2:
+            screen.blit(MediumTextVolIMG, (530, 238))
+        if volumeOption == 3:
+            screen.blit(HighTextIMG, (565, 235))
+        if difficultyOption == 1:
+            screen.blit(EasyTextIMG, (570, 428))
+        if difficultyOption == 2:
+            screen.blit(MediumTextDifIMG, (530, 428))
+        if difficultyOption == 3:
+            screen.blit(HardTextIMG, (570, 428))
+    if gameState == "paused":
+        if menuOption == 1:
+            screen.blit(PauseVolumeIMG, (165, 0))
+        if menuOption == 2:
+            screen.blit(PauseControlsIMG, (165, 0))
+        if menuOption == 3:
+            screen.blit(PauseResumeIMG, (165, 0))
+        if volumeOption == 1:
+            screen.blit(LowTextIMG, (570, 275))
+        if volumeOption == 2:
+            MediumTextVolIMG = pygame.transform.scale(MediumTextIMG, (200, 30))
+            screen.blit(MediumTextVolIMG, (555, 278))
+            MediumTextVolIMG = pygame.transform.scale(MediumTextIMG, (240, 30))
+        if volumeOption == 3:
+            screen.blit(HighTextIMG, (570, 278))
+    if gameState == "controls":
+        screen.fill((200, 150, 200))
+    if gameState == "endScreen":
+            drawBlankScreen(20, 20, 20)
+    pygame.display.flip()
 
 #draws the screen including the player
 def drawScreen(a, b, c, walls, waters):
@@ -127,32 +257,26 @@ def drawScreen(a, b, c, walls, waters):
         pygame.draw.rect(screen, (0,0,0), enemyHealthbarBground.rect)
     for enemyHealthbar in enemyHealthbars:
         pygame.draw.rect(screen, healthColour, enemyHealthbar.rect)
+    for coin in Coins:
+        pygame.draw.rect(screen, coinColour, coin.rect)
     pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(0,600,1050,120))
+    pygame.draw.rect(screen, (0,0,0), playerHealthbarBground.rect)
+    pygame.draw.rect(screen, healthColour, playerHealthbar.rect)
     pygame.draw.rect(screen, playerColour, player.rect)
+    screen.blit(heartIMG, (30, 625))
     if numEnemiesRemaining == 0:
         pygame.draw.rect(screen,(255,0,0),end_rect)
-    pygame.display.flip()
+    screen.blit(scoreText, (540, 642))
+    screen.blit(moneyText, (810, 642))
+    if gameState != "paused":
+        pygame.display.flip()
 
-#draws first level [Without this first level wont appear until after delay]
-numEnemiesRemaining = 0
-x = y = 0
-for row in levels[currentLevel]:
-    for col in row:
-        if col == "W":
-            walls.append(Wall(x, y))
-        if col == "E":
-            end_rect = pygame.Rect(x,y,30,60)
-        if col == "B":
-            waters.append(Water(x, y))
-        if col == "N":
-            enemies.append(Enemy(x, y))
-            numEnemiesRemaining = numEnemiesRemaining + 1
-        x += 30
-    y += 30
-    x = 0
-for enemy in enemies:
-    enemyHealthbars.append(EnemyHealthbar(enemy.rect.x - 25, enemy.rect.y - 20, enemy))
-    enemyHealthbarBgrounds.append(EnemyHealthbarBground(enemy.rect.x - 25, enemy.rect.y - 20, enemy))
+#allows use of log base 3
+def logBase3(x):
+    return  math.log(x) / math.log(3)
+
+
+
 
 
 #start game
@@ -178,21 +302,111 @@ while running == True:
     
     #sets to current game time
     currentTime = pygame.time.get_ticks()
+
+    userInput = pygame.key.get_pressed()
     
     #loop for menus
-    if gameState == "menus":
-        drawBlankScreen(255, 255, 255)
-        if gameState == "menus":
-           userInput = pygame.key.get_pressed()
-           if userInput[pygame.K_RETURN]:
-                gameState = "playing"
-           for event in pygame.event.get():
+    if gameState == "startMenu":
+        if userInput[pygame.K_RETURN]:
+            if menuCooldown == 0:
+                menuCooldown = 15
+                if menuOption == 1:
+                    gameState = "settings"
+                    menuOption = 1
+                if menuOption == 2:
+                    gameState = "playing"
+                    #plays music
+                    pygame.mixer.music.play(loops=-1)
+                if menuOption == 3:
+                    gameState = "leaderboard"
+        for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+        
+        #allows players to navigate menu 
+        if menuCooldown == 0:
+            if userInput[pygame.K_a]:
+                menuCooldown = 15
+                if menuOption == 1:
+                    menuOption = 3
+                else:
+                    menuOption = menuOption - 1
+            if userInput[pygame.K_d]:
+                menuCooldown = 15
+                if menuOption == 3:
+                    menuOption = 1
+                else:
+                    menuOption = menuOption + 1
+
+    elif gameState == "settings":
+        if userInput[pygame.K_w]:
+            if menuCooldown == 0:
+                menuCooldown = 15
+                if menuOption == 1:
+                    menuOption = 3
+                else:
+                    menuOption = menuOption - 1
+        if userInput[pygame.K_s]:
+            if menuCooldown == 0:
+                menuCooldown = 15
+                if menuOption == 3:
+                    menuOption = 1
+                else:
+                    menuOption = menuOption + 1
+
+
+        if userInput[pygame.K_RETURN]:
+            if menuCooldown == 0:
+                if menuOption == 3:
+                    print("exit")
+                    gameState = "startMenu"
+                    menuOption = 2
+                    pygame.event.clear(pygame.KEYDOWN)
+                menuCooldown = 15
+        
+        if userInput[pygame.K_a]:
+            if menuCooldown == 0:
+                if menuOption == 1:
+                    if volumeOption == 1:
+                        volumeOption = 3
+                    else:
+                        volumeOption = volumeOption - 1
+                    menuCooldown = 15
+                if menuOption == 2:
+                    if difficultyOption == 1:
+                        difficultyOption = 3
+                    else:
+                        difficultyOption = difficultyOption - 1
+                    menuCooldown = 15
+        if userInput[pygame.K_d]:
+            if menuCooldown == 0:
+                if menuOption == 1:
+                    if volumeOption == 3:
+                        volumeOption = 1
+                    else:
+                        volumeOption = volumeOption + 1
+                    menuCooldown = 15
+                if menuOption == 2:
+                    if difficultyOption == 3:
+                        difficultyOption = 1
+                    else:
+                        difficultyOption = difficultyOption + 1
+                    menuCooldown = 15
+                
+                
+        
+        
+
            
 
     #loop for gameplay
-    if gameState == "playing":
+    elif gameState == "playing":
+
+        if userInput[pygame.K_RETURN]:
+            if menuCooldown == 0:
+                gameState = "paused"
+                menuOption = 1
+                menuCooldown = 15
 
         if userInput[pygame.K_a]:
             playerFacingX = "left"
@@ -205,7 +419,6 @@ while running == True:
         
 
         #player movement
-        userInput = pygame.key.get_pressed()
         if dashing == False:
             if playerFacingX == "left":
                 
@@ -400,37 +613,50 @@ while running == True:
                 player.beingAttacked = True
                 player.damageTimer = 80
                 player.recieveDamage(15)
-                print(player.health)
+                
        
         #detects if player touches the exit door
-        if player.rect.colliderect(end_rect):
+        if player.rect.colliderect(end_rect) or currentLevel == -1:
             if numEnemiesRemaining == 0:
+                
+                
+                if currentLevel != -1:
+                    #calculates score based on time
+                    Score = Score + int((10000 - 1000*logBase3(roomTimer // 60)))
+                roomTimer = 0
+                Score = (Score // 100) * 100 
+
                 #stops code trying to load a non existent level
                 if currentLevel < maxLevel:
-                    currentLevel = currentLevel + 1
-                    del walls[:]
-                    del waters[:]
-                    del enemies[:]
-                    del enemyHealthbars[:]
-                    numEnemiesRemaining = 0
-                    x = y = 0
-                    for row in levels[currentLevel]:
-                        for col in row:
-                            if col == "W":
-                                walls.append(Wall(x, y))
-                            if col == "E":
-                                end_rect = pygame.Rect(x,y,30,60)
-                            if col == "B":
-                                waters.append(Water(x, y))
-                            if col == "N":
-                                enemies.append(Enemy(x, y))
-                                numEnemiesRemaining = numEnemiesRemaining + 1
-                            x += 30
-                        y += 30 
-                        x = 0
-                    for enemy in enemies:
-                        enemyHealthbars.append(EnemyHealthbar(enemy.rect.x - 25, enemy.rect.y - 20, enemy))
-                        enemyHealthbarBgrounds.append(EnemyHealthbarBground(enemy.rect.x - 25, enemy.rect.y - 20, enemy))
+                    if currentLevel != 3 and currentLevel != 8 and currentLevel != 13: 
+                        currentLevel = currentLevel + 1
+                        del walls[:]
+                        del waters[:]
+                        del enemies[:]
+                        del enemyHealthbars[:]
+                        numEnemiesRemaining = 0
+                        x = y = 0
+                        for row in levels[currentLevel - shopsVisited]:
+                            for col in row:
+                                if col == "W":
+                                    walls.append(Wall(x, y))
+                                if col == "E":
+                                    end_rect = pygame.Rect(x,y,30,60)
+                                if col == "B":
+                                    waters.append(Water(x, y))
+                                if col == "N":
+                                    enemies.append(Enemy(x, y, difficultyOption))
+                                    numEnemiesRemaining = numEnemiesRemaining + 1
+                                x += 30
+                            y += 30 
+                            x = 0
+                        for enemy in enemies:
+                            enemyHealthbars.append(EnemyHealthbar(0, 0, difficultyOption, enemy))
+                            enemyHealthbarBgrounds.append(EnemyHealthbarBground(0, 0, difficultyOption, enemy))
+                    
+                    else:
+                        gameState = "shop"
+                        shopsVisited = shopsVisited + 1
 
                 elif currentLevel == maxLevel:
                     gameState = "endScreen"
@@ -561,7 +787,7 @@ while running == True:
                         enemy.damageTimer = LhitTimer
                         enemy.previousAttackRecieved = "Light"
                         enemy.beingAttacked = True
-                        print(enemy.health)
+                       
             if enemy.rect.colliderect(Hattack.rect):
                 #allows attack cancelling as well as hitting the same attack again
                 if enemy.previousAttackRecieved == "Light" or enemy.damageTimer == 0:
@@ -570,7 +796,7 @@ while running == True:
                         enemy.damageTimer = HhitTimer
                         enemy.previousAttackRecieved = "Heavy"
                         enemy.beingAttacked = True
-                        print(enemy.health)
+                        
             if enemy.rect.colliderect(Sattack.rect):
                 #allows attack cancelling as well as hitting the same attack again
                 if enemy.previousAttackRecieved == "Light" or enemy.previousAttackRecieved == "Heavy" or enemy.damageTimer == 0:
@@ -579,7 +805,7 @@ while running == True:
                         enemy.damageTimer = ShitTimer
                         enemy.previousAttackRecieved = "Special"
                         enemy.beingAttacked = True
-                        print(enemy.health)
+                        
 
             if enemy.damageTimer > 0:
                 enemy.damageTimer = enemy.damageTimer - 1
@@ -598,7 +824,9 @@ while running == True:
                     #identifies which enemy the healthbar belongs to
                     if enemyHealthbar.owner == enemy:
                         enemyHealthbars.remove(enemyHealthbar) 
-                    
+                #increases score on defeating enemy
+                Score = Score + 100
+                Coins.append(Coin(enemy.rect.x + 5, enemy.rect.y + 5))    
                 enemies.remove(enemy)
                 numEnemiesRemaining = numEnemiesRemaining - 1
             else:
@@ -631,30 +859,44 @@ while running == True:
                 if attack.owner == enemy:
                     attack.rect.x = enemy.rect.x - 20
                     attack.rect.y = enemy.rect.y - 20
+                if attack.timer == 0:
+                    enemyAttacks.remove(attack)
+                attack.timer = attack.timer - 1
             
             #positions health bars
             for enemyHealthbar in enemyHealthbars:
                 if enemyHealthbar.owner == enemy:
-                    enemyHealthbar.rect.x = enemy.rect.x - 25
-                    enemyHealthbar.rect.y = enemy.rect.y - 20
+                    if difficultyOption == 1:
+                        enemyHealthbar.rect.x = enemy.rect.x - 5
+                        enemyHealthbar.rect.y = enemy.rect.y - 20
+                    if difficultyOption == 2:
+                        enemyHealthbar.rect.x = enemy.rect.x - 25
+                        enemyHealthbar.rect.y = enemy.rect.y - 20
+                    if difficultyOption == 3:
+                        enemyHealthbar.rect.x = enemy.rect.x - 45
+                        enemyHealthbar.rect.y = enemy.rect.y - 20
+                    
             
             #positions health bar backgrounds
             for enemyHealthbarBground in enemyHealthbarBgrounds:
                 if enemyHealthbarBground.owner == enemy:
-                    enemyHealthbarBground.rect.x = enemy.rect.x - 25
-                    enemyHealthbarBground.rect.y = enemy.rect.y - 20
+                    if difficultyOption == 1:
+                        enemyHealthbarBground.rect.x = enemy.rect.x - 5
+                        enemyHealthbarBground.rect.y = enemy.rect.y - 20
+                    if difficultyOption == 2:
+                        enemyHealthbarBground.rect.x = enemy.rect.x - 25
+                        enemyHealthbarBground.rect.y = enemy.rect.y - 20
+                    if difficultyOption == 3:
+                        enemyHealthbarBground.rect.x = enemy.rect.x - 45
+                        enemyHealthbarBground.rect.y = enemy.rect.y - 20
+
+
+
+
+                    
 
 
             
-                    
-
-                   
-                
-
-                
-        
-        
-           
         
         #sets attack box positions
         Lattack.rect.x = player.rect.x - 10
@@ -797,21 +1039,108 @@ while running == True:
             elif enemy.attacking == True:
                 enemy.attackTimer = enemy.attackTimer + 1
 
+        #removes coins once the player touches them
+        for coin in Coins:
+            if player.rect.colliderect(coin.rect):
+                Money = Money + 10
+                Coins.remove(coin)
+        
+
+        playerHealthbar.rect.width = player.health/100 * 400
+        roomTimer = roomTimer + 1
+
+        #text rendering
+        scoreText = font.render(f"Score: {Score}", True, (225, 225, 225))
+        moneyText = font.render(f"Money: {Money}", True, (225, 225, 225))
+
+    if gameState == "paused":
+        
+
+        if userInput[pygame.K_w]:
+            if menuCooldown == 0:
+                menuCooldown = 15
+                if menuOption == 1:
+                    menuOption = 3
+                else:
+                    menuOption = menuOption - 1
+
+        if userInput[pygame.K_s]:
+            if menuCooldown == 0:
+                menuCooldown = 15
+                if menuOption == 3:
+                    menuOption = 1
+                else:
+                    menuOption = menuOption + 1
+        
+        if userInput[pygame.K_a]:
+            if menuCooldown == 0:
+                if menuOption == 1:
+                    if volumeOption == 1:
+                        volumeOption = 3
+                    else:
+                        volumeOption = volumeOption - 1
+                    menuCooldown = 15
+
+        if userInput[pygame.K_d]:
+            if menuCooldown == 0:
+                if menuOption == 1:
+                    if volumeOption == 3:
+                        volumeOption = 1
+                    else:
+                        volumeOption = volumeOption + 1
+                    menuCooldown = 15
+
+        if userInput[pygame.K_RETURN]:
+            if menuCooldown == 0: 
+                if menuOption == 2:
+                    gameState = "controls"
+                    menuCooldown = 15
+                if menuOption == 3:
+                    gameState = "playing"
+                    menuCooldown = 15
+    
+    if gameState == "controls":
+        if userInput[pygame.K_RETURN]:
+            if menuCooldown == 0:
+                gameState = "paused"
+                menuCooldown = 15
+
+                
+            
+
     #checks if the player has died
     if player.health == 0:
         gameState = "endScreen"
+        #stops the music for end screen
+        mixer.music.stop()
+    
+    if volumeOption == 1:
+        mixer.music.set_volume(0.10)
+    if volumeOption == 2:
+        mixer.music.set_volume(0.50)
+    if volumeOption == 3:
+        mixer.music.set_volume(1.00)
+
+
+    
     
     
         
         
 
     playerFacingX = "Neutral"
-    playerFacingY = "Neutral"              
+    playerFacingY = "Neutral"    
+
+    #stops menu inputs registering multiple times
+    if menuCooldown > 0:
+            menuCooldown = menuCooldown - 1
+
     #draw screen
-    if gameState == "endScreen":
-        drawBlankScreen(20, 20, 20)
-    elif gameState == "menus":
-        drawBlankScreen(255, 255, 255)
+    if gameState != "playing" and gameState != "paused":
+        drawMenus()
+    elif gameState == "paused":
+        drawScreen(60, 60, 60,walls, waters)
+        drawMenus()
     else:
         drawScreen(60, 60, 60, walls, waters)
 

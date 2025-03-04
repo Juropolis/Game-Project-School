@@ -3,9 +3,9 @@ import pygame
 
 #initialise enemy class
 class Enemy(object):
-    def __init__(self, x, y):
+    def __init__(self, x, y, healthMultiplier):
         self.rect = pygame.Rect(x,y,30,30)
-        self.health = 80
+        self.health = 40 * healthMultiplier
         #if > 0 the enemy is immune to damage
         self.damageTimer = 0
         #Allows attack cancelling to still work with the damageTimer
