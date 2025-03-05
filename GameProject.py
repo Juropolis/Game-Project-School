@@ -49,7 +49,7 @@ Score = 0
 roomTimer = 0
 
 #Money/Shop variables
-Money = 0
+Money = 100
 shopsVisited = 0
 
 
@@ -103,7 +103,8 @@ toxicBought = False
 galeBought = False
 chargerBought = False
 
-
+#special ability variables
+galeMultiplier = 1
 
 #start pygame
 os.environ["SDL_VIDEO_CENTERED"] = "1"
@@ -676,6 +677,8 @@ while running == True:
                         del waters[:]
                         del enemies[:]
                         del enemyHealthbars[:]
+                        del enemyAttacks[:]
+                        del Coins[:]
                         numEnemiesRemaining = 0
                         x = y = 0
                         for row in levels[currentLevel - shopsVisited]:
@@ -745,27 +748,27 @@ while running == True:
 
                                 if player.rect.x > enemy.rect.x:
                                     if player.rect.y != enemy.rect.y:
-                                        enemy.move(-1.4*HknockbackS, 0, walls, waters, enemies, player)
+                                        enemy.move(-1.4*HknockbackS*galeMultiplier, 0, walls, waters, enemies, player)
                                         if player.rect.y < enemy.rect.y:
-                                            enemy.move(0, 1.4*HknockbackS, walls, waters, enemies, player)
+                                            enemy.move(0, 1.4*HknockbackS*galeMultiplier, walls, waters, enemies, player)
                                         if player.rect.y > enemy.rect.y:
-                                            enemy.move(0, -1.4*HknockbackS, walls, waters, enemies, player)
+                                            enemy.move(0, -1.4*HknockbackS*galeMultiplier, walls, waters, enemies, player)
                                     else:
-                                        enemy.move(-2*HknockbackS, 0, walls, waters, enemies, player)
+                                        enemy.move(-2*HknockbackS*galeMultiplier, 0, walls, waters, enemies, player)
                                 if player.rect.x < enemy.rect.x:
                                     if player.rect.y != enemy.rect.y:
-                                        enemy.move(1.4*HknockbackS, 0, walls, waters, enemies, player)
+                                        enemy.move(1.4*HknockbackS*galeMultiplier, 0, walls, waters, enemies, player)
                                         if player.rect.y < enemy.rect.y:
-                                            enemy.move(0, 1.4*HknockbackS, walls, waters, enemies, player)
+                                            enemy.move(0, 1.4*HknockbackS*galeMultiplier, walls, waters, enemies, player)
                                         if player.rect.y > enemy.rect.y:
-                                            enemy.move(0, -1.4*HknockbackS, walls, waters, enemies, player)
+                                            enemy.move(0, -1.4*HknockbackS*galeMultiplier, walls, waters, enemies, player)
                                     else:
-                                        enemy.move(2*HknockbackS, 0, walls, waters, enemies, player)
+                                        enemy.move(2*HknockbackS*galeMultiplier, 0, walls, waters, enemies, player)
                                 else:
                                     if player.rect.y < enemy.rect.y:
-                                        enemy.move(0, 2*HknockbackS, walls, waters, enemies, player)
+                                        enemy.move(0, 2*HknockbackS*galeMultiplier, walls, waters, enemies, player)
                                     if player.rect.y > enemy.rect.y:
-                                        enemy.move(0, -2*HknockbackS, walls, waters, enemies, player)
+                                        enemy.move(0, -2*HknockbackS*galeMultiplier, walls, waters, enemies, player)
                                 HknockbackS = HknockbackS - 3
                     if enemy.previousAttackRecieved == "Special":
 
@@ -826,6 +829,8 @@ while running == True:
             if enemy.rect.colliderect(Lattack.rect):
                 if enemy.damageTimer == 0:
                     if lightAttacking == True:
+                        if toxicBought == True:
+                            enemy.poisonTimer = enemy.poisonTimer + 30
                         enemy.recieveDamage(10)
                         enemy.damageTimer = LhitTimer
                         enemy.previousAttackRecieved = "Light"
@@ -835,6 +840,8 @@ while running == True:
                 #allows attack cancelling as well as hitting the same attack again
                 if enemy.previousAttackRecieved == "Light" or enemy.damageTimer == 0:
                     if heavyAttacking == True:
+                        if toxicBought == True:
+                            enemy.poisonTimer = enemy.poisonTimer + 40
                         enemy.recieveDamage(20)
                         enemy.damageTimer = HhitTimer
                         enemy.previousAttackRecieved = "Heavy"
@@ -844,6 +851,8 @@ while running == True:
                 #allows attack cancelling as well as hitting the same attack again
                 if enemy.previousAttackRecieved == "Light" or enemy.previousAttackRecieved == "Heavy" or enemy.damageTimer == 0:
                     if specialAttacking == True:
+                        if toxicBought == True:
+                            enemy.poisonTimer = enemy.poisonTimer + 50
                         enemy.recieveDamage(30)
                         enemy.damageTimer = ShitTimer
                         enemy.previousAttackRecieved = "Special"
@@ -896,6 +905,12 @@ while running == True:
                     if attack.owner == enemy:
                         #removes the attack belonging to a specific enemy
                         enemyAttacks.remove(attack)
+
+            #does poison damage to enemies
+            if enemy.poisonTimer > 0:
+                enemy.recieveDamage(0.2)
+                enemy.poisonTimer = enemy.poisonTimer - 1
+                
 
             for attack in enemyAttacks:
                 #identifies which enemy the attack belongs to
@@ -1096,6 +1111,9 @@ while running == True:
         scoreText = font.render(f"Score: {Score}", True, (225, 225, 225))
         moneyText = font.render(f"Money: {Money}", True, (200, 150, 0))
         purchasedText = smallfont.render(f"You have already purchased this", True, (255, 255, 255))
+
+        if galeBought == True:
+            galeMultiplier = 2
 
     if gameState == "paused":
         

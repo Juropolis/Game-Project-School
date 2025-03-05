@@ -8,6 +8,7 @@ class Enemy(object):
         self.health = 40 * healthMultiplier
         #if > 0 the enemy is immune to damage
         self.damageTimer = 0
+        self.poisonTimer = 0
         #Allows attack cancelling to still work with the damageTimer
         self.previousAttackRecieved = ""
         #Allows knockback to work
