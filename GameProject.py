@@ -98,6 +98,10 @@ Scollision = False
 EattackCooldownTime = 600
 EattackStartup = 25
 
+#This is used for equipping special abilities
+toxicBought = False
+galeBought = False
+chargerBought = False
 
 
 
@@ -107,6 +111,7 @@ pygame.init()
 
 #text display variables MUST BE BELOW PYGAME.INIT()
 font = pygame.font.Font(None, 54)
+smallfont = pygame.font.Font(None, 20)
 
 #set up display
 pygame.display.set_caption("Upgraded")
@@ -178,7 +183,8 @@ ShopExitIMG = pygame.transform.scale(ShopExitIMG, (1050, 720))
 
 #text variable initialisation
 scoreText = font.render("", True, (225, 225, 225))
-moneyText = font.render("", True, (225, 225, 225))
+moneyText = font.render("", True, (200, 200, 0))
+purchasedText = smallfont.render("", True, (225, 225, 225))
 
 
 
@@ -241,14 +247,31 @@ def drawMenus():
         screen.fill((200, 150, 200))
     if gameState == "shop":
         screen.fill((200, 150, 200))
+        
+
         if menuOption == 1:
             screen.blit(ShopToxicIMG, (0, 0))
+            if toxicBought == True:
+                pygame.draw.rect(screen, (25, 25, 25), pygame.Rect(740, 340, 230, 310))
+                screen.blit(purchasedText, (752, 485))
+
         if menuOption == 2:
             screen.blit(ShopGaleIMG, (0, 0))
+            if galeBought == True:
+                pygame.draw.rect(screen, (25, 25, 25), pygame.Rect(740, 340, 230, 310))
+                screen.blit(purchasedText, (752, 485))
+
         if menuOption == 3:
             screen.blit(ShopChargerIMG, (0, 0))
+            if chargerBought == True:
+                pygame.draw.rect(screen, (25, 25, 25), pygame.Rect(740, 340, 230, 310))
+                screen.blit(purchasedText, (752, 485))
+
         if menuOption == 4:
             screen.blit(ShopExitIMG, (0, 0))
+        
+        screen.blit(moneyText, (70, 280))
+
     if gameState == "endScreen":
             drawBlankScreen(20, 20, 20)
     pygame.display.flip()
@@ -1071,7 +1094,8 @@ while running == True:
 
         #text rendering
         scoreText = font.render(f"Score: {Score}", True, (225, 225, 225))
-        moneyText = font.render(f"Money: {Money}", True, (225, 225, 225))
+        moneyText = font.render(f"Money: {Money}", True, (200, 150, 0))
+        purchasedText = smallfont.render(f"You have already purchased this", True, (255, 255, 255))
 
     if gameState == "paused":
         
@@ -1127,6 +1151,8 @@ while running == True:
 
     if gameState == "shop":
 
+        moneyText = font.render(f"Money: {Money}", True, (200, 150, 0))
+
         if userInput[pygame.K_w]:
             if menuCooldown == 0:
                 menuCooldown = 15
@@ -1145,12 +1171,22 @@ while running == True:
         if userInput[pygame.K_RETURN]:
             if menuCooldown == 0:
                 menuCooldown = 15
+
                 if menuOption == 1:
-                    print("toxic")
+                    if Money >= 80 and toxicBought == False:
+                        Money = Money - 80
+                        toxicBought = True
+                        
                 if menuOption == 2:
-                    print("gale")
+                    if Money >= 140 and galeBought == False:
+                        Money = Money - 140
+                        galeBought = True                      
+
                 if menuOption == 3:
-                    print("charger")
+                    if Money >= 320 and chargerBought == False:
+                        Money = Money - 320
+                        chargerBought = True
+                        
                 if menuOption == 4:
                     end_rect = pygame.Rect(0,0,30,30)
                     currentLevel = currentLevel + 1
