@@ -49,7 +49,7 @@ Score = 0
 roomTimer = 0
 
 #Money/Shop variables
-Money = 100
+Money = 0
 shopsVisited = 0
 
 
@@ -187,9 +187,42 @@ scoreText = font.render("", True, (225, 225, 225))
 moneyText = font.render("", True, (200, 200, 0))
 purchasedText = smallfont.render("", True, (225, 225, 225))
 
+#leaderboard 
 
 
+def readLeaderboard(filePath):
+    try:
+        #opens file
+        with open(filePath, 'r') as file:
+            #uses comma to split values on each line, gets rid of white space
+            scores = [line.strip().split(',') for line in file.readlines()]
+            #changes score value to an integer, returns each name and corresponding score seperately
+            return [(name, int(score)) for name, score in scores]
+    except FileNotFoundError:
+        return []
 
+def writeLeaderboard(filePath, Leaderboard):
+    #opens file
+    with open(filePath, 'w') as file:
+        #writes each line to the file
+        for name, score in Leaderboard:
+            file.write(f"{name},{score}\n")
+
+def updateLeaderboard(filePath, playerName, playerScore):
+    leaderboard = readLeaderboard(filePath)
+    #adds new value inputted to the leaderboard (This is fine, condition will be in main code)
+    leaderboard.append((playerName, playerScore))
+    #sorts the leaderboard based on scores in desc order
+    leaderboard.sort(key=lambda x: x[1], reverse=True) 
+    # Keep top 5 scores, removes rest 
+    leaderboard = leaderboard[:5]
+    #overwrites new file with this data  
+    writeLeaderboard(filePath, leaderboard)
+
+file_path = 'leaderboard.txt'
+Leaderboard = readLeaderboard(file_path)
+
+updateLeaderboard("Leaderboard.txt", "Johnny", 500)
 
 
 
@@ -853,7 +886,10 @@ while running == True:
                     if specialAttacking == True:
                         if toxicBought == True:
                             enemy.poisonTimer = enemy.poisonTimer + 50
-                        enemy.recieveDamage(30)
+                        if chargerBought == True:
+                            enemy.recieveDamage(45)
+                        else:
+                            enemy.recieveDamage(30)
                         enemy.damageTimer = ShitTimer
                         enemy.previousAttackRecieved = "Special"
                         enemy.beingAttacked = True
@@ -1115,6 +1151,9 @@ while running == True:
         if galeBought == True:
             galeMultiplier = 2
 
+        if chargerBought == True:
+            SattackCooldownTime = 1560
+
     if gameState == "paused":
         
 
@@ -1245,6 +1284,8 @@ while running == True:
     #stops menu inputs registering multiple times
     if menuCooldown > 0:
             menuCooldown = menuCooldown - 1
+    
+
 
     #draw screen
     if gameState != "playing" and gameState != "paused":
