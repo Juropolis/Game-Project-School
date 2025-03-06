@@ -192,37 +192,59 @@ purchasedText = smallfont.render("", True, (225, 225, 225))
 
 def readLeaderboard(filePath):
     try:
-        #opens file
         with open(filePath, 'r') as file:
-            #uses comma to split values on each line, gets rid of white space
-            scores = [line.strip().split(',') for line in file.readlines()]
-            #changes score value to an integer, returns each name and corresponding score seperately
-            return [(name, int(score)) for name, score in scores]
+            return [tuple(line.strip().split(',')) for line in file.readlines() if len(line.strip().split(',')) == 2]
     except FileNotFoundError:
         return []
 
-def writeLeaderboard(filePath, Leaderboard):
-    #opens file
+def writeLeaderboard(filePath, leaderboard):
     with open(filePath, 'w') as file:
-        #writes each line to the file
-        for name, score in Leaderboard:
-            file.write(f"{name},{score}\n")
+        for entry in leaderboard:
+            file.write(f"{entry[0]},{entry[1]}\n")
 
 def updateLeaderboard(filePath, playerName, playerScore):
     leaderboard = readLeaderboard(filePath)
-    #adds new value inputted to the leaderboard (This is fine, condition will be in main code)
-    leaderboard.append((playerName, playerScore))
-    #sorts the leaderboard based on scores in desc order
-    leaderboard.sort(key=lambda x: x[1], reverse=True) 
-    # Keep top 5 scores, removes rest 
+    #store the score as string to output
+    leaderboard.append((playerName, str(playerScore)))  
+    #sort leaderboard by score in descending order by comparing it as an integer
+    leaderboard = sorted(leaderboard, key=lambda x: int(x[1]), reverse=True)  
+    #just keeps the top 5 entries
     leaderboard = leaderboard[:5]
-    #overwrites new file with this data  
     writeLeaderboard(filePath, leaderboard)
+    return leaderboard
 
-file_path = 'leaderboard.txt'
-Leaderboard = readLeaderboard(file_path)
+def displayLeaderboard(filePath):
+    #fill screen with pink colour
+    screen.fill((200, 150, 200))  
 
-updateLeaderboard("Leaderboard.txt", "Johnny", 500)
+    #read leaderboard using other function
+    leaderboard = readLeaderboard(filePath)
+    leaderboard = sorted(leaderboard, key=lambda x: int(x[1]), reverse=True)  
+    #just keeps the top 5 entries
+    leaderboard = leaderboard[:5]
+
+    #place heading on screen
+    heading = font.render("Leaderboard", True, (0, 0, 0))
+    screen.blit(heading, (width // 2 - heading.get_width() // 2, 50))
+
+    # Render the entries
+    for rank, entry in enumerate(leaderboard, start=1):
+        #check that entry only has a score and name and nothing else
+        if len(entry) == 2:  
+            name, score = entry
+            name_text = font.render(f"{rank}. {name}", True, (0, 0, 0))
+            score_text = font.render(f"Score: {score}", True, (0, 0, 0))
+            screen.blit(name_text, (100, 150 + (rank - 1) * 50))
+            screen.blit(score_text, (400, 150 + (rank - 1) * 50))
+
+    pygame.display.flip()
+
+   
+
+filePath = 'leaderboard.txt'
+
+
+
 
 
 
@@ -1295,6 +1317,9 @@ while running == True:
         drawMenus()
     else:
         drawScreen(60, 60, 60, walls, waters)
+    
+
+
 
     
 

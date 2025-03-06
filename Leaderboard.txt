@@ -1,5 +1,5 @@
 Johnny,500
-Johnny,500
-Glimp,0
-Dewott,0
-Gronk,0
+Grimace,60
+Glonk,20
+Flamingo,700
+Overachiever,6000
