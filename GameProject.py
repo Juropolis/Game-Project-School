@@ -193,6 +193,7 @@ purchasedText = smallfont.render("", True, (225, 225, 225))
 def readLeaderboard(filePath):
     try:
         with open(filePath, 'r') as file:
+            #removes white space and splits values using comma
             return [tuple(line.strip().split(',')) for line in file.readlines() if len(line.strip().split(',')) == 2]
     except FileNotFoundError:
         return []
@@ -201,6 +202,20 @@ def writeLeaderboard(filePath, leaderboard):
     with open(filePath, 'w') as file:
         for entry in leaderboard:
             file.write(f"{entry[0]},{entry[1]}\n")
+
+def checkLeaderboard(filePath):
+    leaderboard = readLeaderboard(filePath)
+    #sorts leaderboard with lowest score at the top
+    leaderboard = sorted(leaderboard, key=lambda x: int(x[1]), reverse=False) 
+    #removes any entries with higher scores 
+    leaderboard = leaderboard[:1]
+    #extracts just the score part of the tuple
+    scores = [entry[1] for entry in leaderboard]
+    #removes brackets and quote marks from tuple & returns 
+    return int(scores[0]) if scores else None
+    
+    
+   
 
 def updateLeaderboard(filePath, playerName, playerScore):
     leaderboard = readLeaderboard(filePath)
@@ -222,6 +237,8 @@ def displayLeaderboard(filePath):
     leaderboard = sorted(leaderboard, key=lambda x: int(x[1]), reverse=True)  
     #just keeps the top 5 entries
     leaderboard = leaderboard[:5]
+    
+
 
     #place heading on screen
     heading = font.render("Leaderboard", True, (0, 0, 0))
@@ -242,7 +259,7 @@ def displayLeaderboard(filePath):
    
 
 filePath = 'leaderboard.txt'
-
+print(checkLeaderboard("Leaderboard.txt"))
 
 
 
@@ -283,6 +300,10 @@ def drawMenus():
             screen.blit(MediumTextIMG, (530, 428))
         if difficultyOption == 3:
             screen.blit(HardTextIMG, (570, 428))
+
+    if gameState == "leaderboard":
+        displayLeaderboard("Leaderboard.txt")
+
     if gameState == "paused":
 
         if menuOption == 1:
@@ -490,11 +511,14 @@ while running == True:
                     else:
                         difficultyOption = difficultyOption + 1
                     menuCooldown = 15
-                
-                
-        
-        
 
+    
+    if gameState == "leaderboard":
+        if userInput[pygame.K_RETURN]:
+            if menuCooldown == 0:
+                gameState = "startMenu"
+                menuOption = 2
+                menuCooldown = 15
            
 
     #loop for gameplay
@@ -1273,6 +1297,9 @@ while running == True:
                     player.rect.y = 0
                     drawBlankScreen(0, 0, 0)
                     gameState = "playing"
+
+    if gameState == "endScreen":
+        print("end")
                     
     
 
