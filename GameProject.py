@@ -43,6 +43,9 @@ menuCooldown = 0
 difficultyOption = 2
 volumeOption = 2
 
+nameText = ""
+textEntering = True
+
 
 #score variables
 Score = 0
@@ -1299,9 +1302,27 @@ while running == True:
                     gameState = "playing"
 
     if gameState == "endScreen":
-        print("end")
+        if Score > checkLeaderboard("Leaderboard.txt"):
+            if textEntering:
+                print("Player will enter name for leaderboard")
+
+                for event in pygame.event.get():  # Loop through events to check for each one
+                    if event.type == pygame.KEYDOWN:  # Only process KEYDOWN events
+                        if event.key == pygame.K_BACKSPACE:
+                            nameText = nameText[:-1]  # Remove last character
+                        elif event.key == pygame.K_RETURN:
+                            textEntering = False
+                        elif event.unicode.isprintable():  # Add printable characters
+                            nameText += event.unicode
+
+                # Render text separately (do not overwrite nameText)
+                textSurface = font.render(nameText, True, (0, 0, 0))
+                screen.blit(textSurface, (50, 50))
+
+                pygame.display.flip()
                     
     
+
 
 
                 
