@@ -183,12 +183,18 @@ ShopChargerIMG = pygame.image.load('ShopCharger.png')
 ShopChargerIMG = pygame.transform.scale(ShopChargerIMG, (1050, 720))
 ShopExitIMG = pygame.image.load('ShopExit.png')
 ShopExitIMG = pygame.transform.scale(ShopExitIMG, (1050, 720))
+GameOverIMG = pygame.image.load('GameOver.png') 
+GameOverIMG = pygame.transform.scale(GameOverIMG, (1050, 720))
+GameWonIMG = pygame.image.load('GameWon.png') 
+GameWonIMG = pygame.transform.scale(GameWonIMG, (1050, 720))
+
 
 
 #text variable initialisation
 scoreText = font.render("", True, (225, 225, 225))
 moneyText = font.render("", True, (200, 200, 0))
 purchasedText = smallfont.render("", True, (225, 225, 225))
+textSurface = font.render("", True, (0, 0, 0))
 
 #leaderboard 
 
@@ -252,17 +258,18 @@ def displayLeaderboard(filePath):
         #check that entry only has a score and name and nothing else
         if len(entry) == 2:  
             name, score = entry
-            name_text = font.render(f"{rank}. {name}", True, (0, 0, 0))
-            score_text = font.render(f"Score: {score}", True, (0, 0, 0))
-            screen.blit(name_text, (100, 150 + (rank - 1) * 50))
-            screen.blit(score_text, (400, 150 + (rank - 1) * 50))
+            usernameText = font.render(f"{rank}. {name}", True, (0, 0, 0))
+            scoreText = font.render(f"Score: {score}", True, (0, 0, 0))
+            screen.blit(usernameText, (240, 200 + (rank - 1) * 75))
+            screen.blit(scoreText, (560, 200 + (rank - 1) * 75))
+    
+    screen.blit(font.render("Press enter to return", True, (0, 0, 0)), (328, 600))
 
     pygame.display.flip()
 
    
 
 filePath = 'leaderboard.txt'
-print(checkLeaderboard("Leaderboard.txt"))
 
 
 
@@ -306,6 +313,8 @@ def drawMenus():
 
     if gameState == "leaderboard":
         displayLeaderboard("Leaderboard.txt")
+        
+
 
     if gameState == "paused":
 
@@ -353,8 +362,25 @@ def drawMenus():
         screen.blit(moneyText, (70, 280))
 
     if gameState == "endScreen":
-            drawBlankScreen(20, 20, 20)
+            screen.fill((20, 20, 20))
+            if player.health == 0:
+                screen.blit(GameOverIMG, (0,0))
+            else: 
+                screen.blit(GameWonIMG, (0, 0))
+
+            
+
+    if gameState == "leaderboardEntry":
+        screen.fill((200, 150, 200))
+        screen.blit(font.render("Congratulations on making it onto the leaderboard!", True, (0, 0, 0)), (55, 50))
+        screen.blit(font.render("Enter your name:", True, (0, 0, 0)), (360, 200))
+        screen.blit(font.render("Press enter to confirm", True, (0, 0, 0)), (325, 600))
+        
+        screen.blit(textSurface, (335, 315))
+        pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(250, 350, 550, 5))
     pygame.display.flip()
+
+    
 
 #draws the screen including the player
 def drawScreen(a, b, c, walls, waters):
@@ -419,6 +445,39 @@ while running == True:
                 running = False
                 pygame.quit()
                 sys.exit()
+        
+        if gameState == "leaderboardEntry":
+            if textEntering:
+
+            #checks pygame event
+                    
+                    #a key must be presed
+                    if event.type == pygame.KEYDOWN:
+                        #limit of 15 characters  
+                            #lets player delete characters
+                            if event.key == pygame.K_BACKSPACE:
+                                nameText = nameText[:-1]
+                            #lets player stop entering characters  
+                            elif event.key == pygame.K_RETURN:
+                                textEntering = False
+                                updateLeaderboard("Leaderboard.txt", nameText, Score)
+                                gameState = "endScreen"
+                            #add the characters to the name
+                            elif event.unicode.isprintable():
+                                if len(nameText) < 15:  
+                                    nameText += event.unicode
+                            if len(nameText) > 0:
+                                if nameText[int(len(nameText)) - 1] == ",":
+                                    nameText = nameText[:-1]
+
+                        
+
+            #renders text separately (without overwriting nameText)
+            textSurface = font.render(nameText, True, (0, 0, 0))
+            
+
+            
+            
 
 
     
@@ -1302,28 +1361,10 @@ while running == True:
                     gameState = "playing"
 
     if gameState == "endScreen":
-        if Score > checkLeaderboard("Leaderboard.txt"):
-            if textEntering:
-                print("Player will enter name for leaderboard")
-
-                for event in pygame.event.get():  # Loop through events to check for each one
-                    if event.type == pygame.KEYDOWN:  # Only process KEYDOWN events
-                        if event.key == pygame.K_BACKSPACE:
-                            nameText = nameText[:-1]  # Remove last character
-                        elif event.key == pygame.K_RETURN:
-                            textEntering = False
-                        elif event.unicode.isprintable():  # Add printable characters
-                            nameText += event.unicode
-
-                # Render text separately (do not overwrite nameText)
-                textSurface = font.render(nameText, True, (0, 0, 0))
-                screen.blit(textSurface, (50, 50))
-
-                pygame.display.flip()
-                    
-    
-
-
+        if textEntering == True and Score > checkLeaderboard("Leaderboard.txt") and player.health != 0:
+                gameState = "leaderboardEntry"
+        
+            
 
                 
             

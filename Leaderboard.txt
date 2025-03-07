@@ -1,5 +1,5 @@
-Johnny,500
-Grimace,60
-Glonk,20
-Flamingo,700
 Overachiever,6000
+MrTest-a-lot,1200
+Hobby,5900
+BlueRose,200
+Flamingo,700
