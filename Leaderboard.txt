@@ -1,5 +1,5 @@
+MagicalPigTest,143700
+Jarumpski,134900
 Overachiever,6000
-MrTest-a-lot,1200
 Hobby,5900
-BlueRose,200
-Flamingo,700
+MrTest-a-lot,1200

@@ -9,7 +9,7 @@ from pygame import mixer
 from PlayerClass import Player
 from WallClass import Wall
 from LevelFile import levels
-from WaterClass import Water
+from PillarClass import Pillar
 from EnemyClass import Enemy
 from LightHitboxClass import LightHitbox
 from HeavyHitboxClass import HeavyHitbox
@@ -25,6 +25,7 @@ from CoinClass import Coin
 #variable initialising
 playerFacingX = "right"
 playerFacingY = "up"
+prevDirection = "right"
 playerColour = (204, 255, 109)
 LattackColour = (0, 255, 0)
 HattackColour = (0, 0, 255)
@@ -32,7 +33,7 @@ SattackColour = (0, 155, 155)
 EattackColour = (255, 165, 0)
 enemyColour = (254, 69, 69)
 wallColour = (155, 155, 155)
-waterColour = (200, 250, 241)
+pillarColour = (200, 250, 241)
 healthColour = (100, 255, 100)
 coinColour = (250, 220, 90)
 currentScore = 0
@@ -101,6 +102,11 @@ Scollision = False
 EattackCooldownTime = 600
 EattackStartup = 25
 
+#This is used for the heal ability
+healCooldown = 0
+healCooldownTime = 40000
+
+
 #This is used for equipping special abilities
 toxicBought = False
 galeBought = False
@@ -116,6 +122,7 @@ pygame.init()
 #text display variables MUST BE BELOW PYGAME.INIT()
 font = pygame.font.Font(None, 54)
 smallfont = pygame.font.Font(None, 20)
+mediumfont = pygame.font.Font(None, 36)
 
 #set up display
 pygame.display.set_caption("Upgraded")
@@ -128,11 +135,11 @@ player = Player()
 Lattack = LightHitbox(0, 0) 
 Hattack = HeavyHitbox(0, 0)
 Sattack = SpecialHitbox(0, 0)
-playerHealthbar = PlayerHealthbar(120, 635)
-playerHealthbarBground = PlayerHealthbarBground(120, 635)
+playerHealthbar = PlayerHealthbar(120, 630)
+playerHealthbarBground = PlayerHealthbarBground(120, 630)
 enemies = []
 walls = []
-waters = []
+pillars = []
 enemyAttacks = []
 enemyHealthbars = []
 enemyHealthbarBgrounds = []
@@ -187,12 +194,76 @@ GameOverIMG = pygame.image.load('GameOver.png')
 GameOverIMG = pygame.transform.scale(GameOverIMG, (1050, 720))
 GameWonIMG = pygame.image.load('GameWon.png') 
 GameWonIMG = pygame.transform.scale(GameWonIMG, (1050, 720))
+PSDownNeutralIMG = pygame.image.load('PSDownNeutral.png')
+PSDownNeutralIMG = pygame.transform.scale(PSDownNeutralIMG, (90, 100))
+PSDownWalk1IMG = pygame.image.load('PSDownWalk1.png')
+PSDownWalk1IMG = pygame.transform.scale(PSDownWalk1IMG, (90, 100))
+PSDownWalk2IMG = pygame.image.load('PSDownWalk2.png')
+PSDownWalk2IMG = pygame.transform.scale(PSDownWalk2IMG, (90, 100))
+PSLeftNeutralIMG = pygame.image.load('PSLeftNeutral.png')
+PSLeftNeutralIMG = pygame.transform.scale(PSLeftNeutralIMG, (90, 100))
+PSLeftWalk1IMG = pygame.image.load('PSLeftWalk1.png')
+PSLeftWalk1IMG = pygame.transform.scale(PSLeftWalk1IMG, (90, 100))
+PSLeftWalk2IMG = pygame.image.load('PSLeftWalk2.png')
+PSLeftWalk2IMG = pygame.transform.scale(PSLeftWalk2IMG, (90, 100))
+PSRightNeutralIMG = pygame.image.load('PSRightNeutral.png')
+PSRightNeutralIMG = pygame.transform.scale(PSRightNeutralIMG, (90, 100))
+PSRightWalk1IMG = pygame.image.load('PSRightWalk1.png')
+PSRightWalk1IMG = pygame.transform.scale(PSRightWalk1IMG, (90, 100))
+PSRightWalk2IMG = pygame.image.load('PSRightWalk2.png')
+PSRightWalk2IMG = pygame.transform.scale(PSRightWalk2IMG, (90, 100))
+PSUpNeutralIMG = pygame.image.load('PSUpNeutral.png')
+PSUpNeutralIMG = pygame.transform.scale(PSUpNeutralIMG, (90, 100))
+PSUpWalk1IMG = pygame.image.load('PSUpWalk1.png')
+PSUpWalk1IMG = pygame.transform.scale(PSUpWalk1IMG, (90, 100))
+PSUpWalk2IMG = pygame.image.load('PSUpWalk2.png')
+PSUpWalk2IMG = pygame.transform.scale(PSUpWalk2IMG, (90, 100))
+CoinIMG = pygame.image.load('CoinSprite.png')
+CoinIMG = pygame.transform.scale(CoinIMG, (20, 30))
+ControlsIMG = pygame.image.load('Controls.png')
+ControlsIMG = pygame.transform.scale(ControlsIMG, (720, 720))
+EDClosedIMG = pygame.image.load('EndDoorClosedSprite.png')
+EDClosedIMG = pygame.transform.scale(EDClosedIMG, (30, 60))
+EDOpenIMG = pygame.image.load('EndDoorOpenSprite.png')
+EDOpenIMG = pygame.transform.scale(EDOpenIMG, (30, 60))
+EnemyIMG = pygame.image.load('EnemySprite.png')
+EnemyIMG = pygame.transform.scale(EnemyIMG, (50, 50))
+EnemyAttackIMG = pygame.image.load('EnemyAttackSprite.png')
+EnemyAttackIMG = pygame.transform.scale(EnemyAttackIMG, (80, 80))
+LightAttackIMG = pygame.image.load('LightAttackSprite.png')
+LightAttackIMG = pygame.transform.scale(LightAttackIMG, (60, 60))
+HeavyAttackIMG = pygame.image.load('HeavyAttackSprite.png')
+HeavyAttackIMG = pygame.transform.scale(HeavyAttackIMG, (80, 80))
+SpecialAttackIMG = pygame.image.load('SpecialAttackSprite.png')
+SpecialAttackIMG = pygame.transform.scale(SpecialAttackIMG, (70, 70))
+RoomBGIMG = pygame.image.load('RoomBG.png')
+RoomBGIMG = pygame.transform.scale(RoomBGIMG, (1050, 720))
+WallIMG = pygame.image.load('WallSprite.png')
+WallIMG = pygame.transform.scale(WallIMG, (30, 30))
+PillarIMG = pygame.image.load('PillarSprite.png')
+PillarIMG = pygame.transform.scale(PillarIMG, (30, 30))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 #text variable initialisation
 scoreText = font.render("", True, (225, 225, 225))
-moneyText = font.render("", True, (200, 200, 0))
+moneyText = font.render("", True, (250, 250, 0))
 purchasedText = smallfont.render("", True, (225, 225, 225))
 textSurface = font.render("", True, (0, 0, 0))
 
@@ -334,6 +405,7 @@ def drawMenus():
             screen.blit(HighTextIMG, (570, 278))
     if gameState == "controls":
         screen.fill((200, 150, 200))
+        screen.blit(ControlsIMG, (165, 0))
     if gameState == "shop":
         screen.fill((200, 150, 200))
         
@@ -383,39 +455,83 @@ def drawMenus():
     
 
 #draws the screen including the player
-def drawScreen(a, b, c, walls, waters):
+def drawScreen(a, b, c, walls, pillars):
     screen.fill((a, b, c,))
+    screen.blit(RoomBGIMG, (0, 0))
     if lightAttacking == True:
-        pygame.draw.rect(screen, LattackColour, Lattack.rect)
+        screen.blit(LightAttackIMG, (Lattack.rect.x - 5, Lattack.rect.y - 5))
     elif heavyAttacking == True:
-        pygame.draw.rect(screen, HattackColour, Hattack.rect)
+        screen.blit(HeavyAttackIMG, (Hattack.rect.x - 5, Hattack.rect.y - 5))
     elif specialAttacking == True:
-        pygame.draw.rect(screen, SattackColour, Sattack.rect)
-    else:
-        pygame.draw.rect(screen, playerColour, player.rect)
+        SpecialAttackIMG = pygame.image.load('SpecialAttackSprite.png')
+        SpecialAttackIMG = pygame.transform.scale(SpecialAttackIMG, (70 + SpecialSpriteGrowth, 70 + SpecialSpriteGrowth))
+        screen.blit(SpecialAttackIMG, ((Sattack.rect.x - 5), (Sattack.rect.y - 5)))
     for wall in walls:
-        pygame.draw.rect(screen,wallColour,wall.rect) 
-    for water in waters:
-        pygame.draw.rect(screen,waterColour,water.rect)
+        screen.blit(WallIMG, (wall.rect.x, wall.rect.y))
+    for pillar in pillars:
+        screen.blit(PillarIMG, (pillar.rect.x, pillar.rect.y))
     for enemyAttack in enemyAttacks:
-        pygame.draw.rect(screen, EattackColour, enemyAttack.rect)
+        screen.blit (EnemyAttackIMG, (enemyAttack.rect.x - 5, enemyAttack.rect.y - 5))
     for enemy in enemies:
-        pygame.draw.rect(screen, enemyColour, enemy.rect)
+        screen.blit(EnemyIMG, (enemy.rect.x - 11, enemy.rect.y - 6))
+
+        
     for enemyHealthbarBground in enemyHealthbarBgrounds:
         pygame.draw.rect(screen, (0,0,0), enemyHealthbarBground.rect)
     for enemyHealthbar in enemyHealthbars:
         pygame.draw.rect(screen, healthColour, enemyHealthbar.rect)
     for coin in Coins:
-        pygame.draw.rect(screen, coinColour, coin.rect)
-    pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(0,600,1050,120))
+        screen.blit(CoinIMG, (coin.rect.x, coin.rect.y - 5))
+    pygame.draw.rect(screen, (150, 150, 150), pygame.Rect(0,600,1050,120))
     pygame.draw.rect(screen, (0,0,0), playerHealthbarBground.rect)
     pygame.draw.rect(screen, healthColour, playerHealthbar.rect)
-    pygame.draw.rect(screen, playerColour, player.rect)
-    screen.blit(heartIMG, (30, 625))
+    screen.blit(mediumfont.render("Press enter to pause", True, (0, 0, 0)), (130, 690))
+
+
+    #draws player sprite
+    if playerFacingY == "Neutral":
+        if playerFacingX == "Neutral":
+            if prevDirection == "left": 
+                screen.blit(PSLeftNeutralIMG, (player.rect.x - 32, player.rect.y - 42))
+            elif prevDirection == "right":
+                screen.blit(PSRightNeutralIMG, (player.rect.x - 32, player.rect.y - 42))
+            elif prevDirection == "up":
+                screen.blit(PSUpNeutralIMG, (player.rect.x - 32, player.rect.y - 42))
+            elif prevDirection == "down":
+                screen.blit(PSDownNeutralIMG, (player.rect.x - 32, player.rect.y - 42))
+        elif playerFacingX == "right":
+            if (currentTime // 200) % 2 == 0:
+                screen.blit(PSRightWalk1IMG, (player.rect.x - 32, player.rect.y - 42))
+            else:
+                screen.blit(PSRightWalk2IMG, (player.rect.x - 32, player.rect.y - 42))
+        elif playerFacingX == "left":
+            if (currentTime // 200) % 2 == 0:
+                screen.blit(PSLeftWalk1IMG, (player.rect.x - 32, player.rect.y - 42))
+            else:
+                screen.blit(PSLeftWalk2IMG, (player.rect.x - 32, player.rect.y - 42))
+    else:
+        if playerFacingY == "up":
+            if (currentTime // 200) % 2 == 0:
+                screen.blit(PSUpWalk1IMG, (player.rect.x - 32, player.rect.y - 42))
+            else:
+                screen.blit(PSUpWalk2IMG, (player.rect.x - 32, player.rect.y - 42))
+        elif playerFacingY == "down":
+            if (currentTime // 200) % 2 == 0:
+                screen.blit(PSDownWalk1IMG, (player.rect.x - 32, player.rect.y - 42))
+            else:
+                screen.blit(PSDownWalk2IMG, (player.rect.x - 32, player.rect.y - 42))
+
+
+
+    
+    
+    screen.blit(heartIMG, (30, 620))
     if numEnemiesRemaining == 0:
-        pygame.draw.rect(screen,(255,0,0),end_rect)
-    screen.blit(scoreText, (540, 642))
-    screen.blit(moneyText, (810, 642))
+        screen.blit(EDOpenIMG, (end_rect.x, end_rect.y))
+    else:
+        screen.blit(EDClosedIMG, (end_rect.x, end_rect.y))
+    screen.blit(scoreText, (540, 637))
+    screen.blit(moneyText, (810, 637))
     if gameState != "paused":
         pygame.display.flip()
 
@@ -585,6 +701,7 @@ while running == True:
 
     #loop for gameplay
     elif gameState == "playing":
+        
 
         if userInput[pygame.K_RETURN]:
             if menuCooldown == 0:
@@ -594,12 +711,16 @@ while running == True:
 
         if userInput[pygame.K_a]:
             playerFacingX = "left"
+            prevDirection = "left"
         if userInput[pygame.K_d]:
             playerFacingX = "right"
+            prevDirection = "right"
         if userInput[pygame.K_w]:
             playerFacingY = "up"
+            prevDirection = "up"
         if userInput[pygame.K_s]:
             playerFacingY = "down"
+            prevDirection = "down"
         
 
         #player movement
@@ -610,24 +731,24 @@ while running == True:
                 if playerFacingY != "Neutral":
                     
                     if player.rect.x >= 3:
-                        player.move(-3, 0, walls, waters, enemies)
+                        player.move(-3, 0, walls, pillars, enemies)
                     else:
                         player.rect.x = 0
 
                     if playerFacingY == "up":
                         if player.rect.y >= 3:
-                            player.move(0, -3, walls, waters, enemies)
+                            player.move(0, -3, walls, pillars, enemies)
                         else:
                             player.rect.y = 0
 
                     elif playerFacingY == "down":
                         if player.rect.y <= height - 33:
-                            player.move(0, 3, walls, waters, enemies)
+                            player.move(0, 3, walls, pillars, enemies)
                         else:
                             player.rect.y = height - 30
                 else:
                     if player.rect.x >= 4:
-                        player.move(-4, 0, walls, waters, enemies)
+                        player.move(-4, 0, walls, pillars, enemies)
                     else:
                         player.rect.x = 0
 
@@ -638,24 +759,24 @@ while running == True:
                 if playerFacingY != "Neutral":
                     
                     if player.rect.x <= width - 33:
-                        player.move(3, 0, walls, waters, enemies)
+                        player.move(3, 0, walls, pillars, enemies)
                     else:
                         player.rect.x = 0
 
                     if playerFacingY == "up":
                         if player.rect.y >= 3:
-                            player.move(0, -3, walls, waters, enemies)
+                            player.move(0, -3, walls, pillars, enemies)
                         else:
                             player.rect.y = 0
 
                     elif playerFacingY == "down":
                         if player.rect.y <= height - 33:
-                            player.move(0, 3, walls, waters, enemies)
+                            player.move(0, 3, walls, pillars, enemies)
                         else:
                             player.rect.y = height - 30
                 else:
                     if player.rect.x <= width - 34:
-                        player.move(4, 0, walls, waters, enemies)
+                        player.move(4, 0, walls, pillars, enemies)
                     else:
                         player.rect.x = 0
             
@@ -663,15 +784,21 @@ while running == True:
 
                 if playerFacingY == "up":
                         if player.rect.y >= 4:
-                            player.move(0, -4, walls, waters, enemies)
+                            player.move(0, -4, walls, pillars, enemies)
                         else:
                             player.rect.y = 0
 
                 elif playerFacingY == "down":
                     if player.rect.y <= height - 34:
-                        player.move(0, 4, walls, waters, enemies)
+                        player.move(0, 4, walls, pillars, enemies)
                     else:
                         player.rect.y = height - 30
+                    
+        
+        #heal ability
+        if userInput[pygame.K_h] and currentTime > healCooldown and player.health < 100:
+            player.health = player.health + 30
+            healCooldown = currentTime + healCooldownTime
 
                 
             
@@ -689,24 +816,24 @@ while running == True:
                 if playerFacingY != "Neutral":
                     
                     if player.rect.x >= 14:
-                        player.move(-14, 0, walls, waters, enemies)
+                        player.move(-14, 0, walls, pillars, enemies)
                     else:
                         player.rect.x = 0
 
                     if playerFacingY == "up":
                         if player.rect.y >= 14:
-                            player.move(0, -14, walls, waters, enemies)
+                            player.move(0, -14, walls, pillars, enemies)
                         else:
                             player.rect.y = 0
 
                     elif playerFacingY == "down":
                         if player.rect.y <= height - 44:
-                            player.move(0, 14, walls, waters, enemies)
+                            player.move(0, 14, walls, pillars, enemies)
                         else:
                             player.rect.y = height - 30
                 else:
                     if player.rect.x >= 14:
-                        player.move(-14, 0, walls, waters, enemies)
+                        player.move(-14, 0, walls, pillars, enemies)
                     else:
                         player.rect.x = 0
 
@@ -717,24 +844,24 @@ while running == True:
                 if playerFacingY != "Neutral":
                     
                     if player.rect.x <= width - 44:
-                        player.move(14, 0, walls, waters, enemies)
+                        player.move(14, 0, walls, pillars, enemies)
                     else:
                         player.rect.x = 0
 
                     if playerFacingY == "up":
                         if player.rect.y >= 14:
-                            player.move(0, -14, walls, waters, enemies)
+                            player.move(0, -14, walls, pillars, enemies)
                         else:
                             player.rect.y = 0
 
                     elif playerFacingY == "down":
                         if player.rect.y <= height - 44:
-                            player.move(0, 14, walls, waters, enemies)
+                            player.move(0, 14, walls, pillars, enemies)
                         else:
                             player.rect.y = height - 30
                 else:
                     if player.rect.x <= width - 44:
-                        player.move(14, 0, walls, waters, enemies)
+                        player.move(14, 0, walls, pillars, enemies)
                     else:
                         player.rect.x = 0
             
@@ -742,13 +869,13 @@ while running == True:
 
                 if playerFacingY == "up":
                         if player.rect.y >= 20:
-                            player.move(0, -20, walls, waters, enemies)
+                            player.move(0, -20, walls, pillars, enemies)
                         else:
                             player.rect.y = 0
 
                 elif playerFacingY == "down":
                     if player.rect.y <= height - 50:
-                        player.move(0, 20, walls, waters, enemies)
+                        player.move(0, 20, walls, pillars, enemies)
                     else:
                         player.rect.y = height - 30
         else:
@@ -781,6 +908,7 @@ while running == True:
             #stops cube from becoming massive overtime
             Sattack.rect.height = 60
             Sattack.rect.width = 60
+            SpecialSpriteGrowth = 0
 
 
         #manages player being attacked
@@ -804,7 +932,7 @@ while running == True:
             if numEnemiesRemaining == 0:
                 
                 
-                if currentLevel != -1:
+                if currentLevel != -1 and currentLevel !=0 and currentLevel != 4 and currentLevel != 9 and currentLevel != 14:
                     #calculates score based on time
                     Score = Score + int((10000 - 1000*logBase3(roomTimer // 60)))
                 roomTimer = 60
@@ -815,7 +943,7 @@ while running == True:
                     if currentLevel != 3 and currentLevel != 8 and currentLevel != 13: 
                         currentLevel = currentLevel + 1
                         del walls[:]
-                        del waters[:]
+                        del pillars[:]
                         del enemies[:]
                         del enemyHealthbars[:]
                         del enemyAttacks[:]
@@ -828,8 +956,8 @@ while running == True:
                                     walls.append(Wall(x, y))
                                 if col == "E":
                                     end_rect = pygame.Rect(x,y,30,60)
-                                if col == "B":
-                                    waters.append(Water(x, y))
+                                if col == "P":
+                                    pillars.append(Pillar(x, y))
                                 if col == "N":
                                     enemies.append(Enemy(x, y, difficultyOption))
                                     numEnemiesRemaining = numEnemiesRemaining + 1
@@ -860,27 +988,27 @@ while running == True:
                     if enemy.previousAttackRecieved == "Light":
                         if player.rect.x > enemy.rect.x:
                             if player.rect.y != enemy.rect.y:
-                                enemy.move(0.7, 0, walls, waters, enemies, player)
+                                enemy.move(0.7, 0, walls, pillars, enemies, player)
                                 if player.rect.y < enemy.rect.y:
-                                    enemy.move(0, -0.7, walls, waters, enemies, player)
+                                    enemy.move(0, -0.7, walls, pillars, enemies, player)
                                 if player.rect.y > enemy.rect.y:
-                                    enemy.move(0, 0.7, walls, waters, enemies, player) 
+                                    enemy.move(0, 0.7, walls, pillars, enemies, player) 
                             else:
-                                enemy.move(1, 0, walls, waters, enemies, player)
+                                enemy.move(1, 0, walls, pillars, enemies, player)
                         if player.rect.x < enemy.rect.x:
                             if player.rect.y != enemy.rect.y:
-                                enemy.move(-0.7, 0, walls, waters, enemies, player)
+                                enemy.move(-0.7, 0, walls, pillars, enemies, player)
                                 if player.rect.y < enemy.rect.y:
-                                    enemy.move(0, -0.7, walls, waters, enemies, player)
+                                    enemy.move(0, -0.7, walls, pillars, enemies, player)
                                 if player.rect.y > enemy.rect.y:
-                                    enemy.move(0, 0.7, walls, waters, enemies, player) 
+                                    enemy.move(0, 0.7, walls, pillars, enemies, player) 
                             else:
-                                enemy.move(-1, 0, walls, waters, enemies, player)
+                                enemy.move(-1, 0, walls, pillars, enemies, player)
                         else:
                             if player.rect.y < enemy.rect.y:
-                                enemy.move(0, -1, walls, waters, enemies, player)
+                                enemy.move(0, -1, walls, pillars, enemies, player)
                             if player.rect.y > enemy.rect.y:
-                                enemy.move(0, 1, walls, waters, enemies, player)
+                                enemy.move(0, 1, walls, pillars, enemies, player)
 
                     if enemy.previousAttackRecieved == "Heavy":
                         if enemy.damageTimer > 20:
@@ -889,80 +1017,80 @@ while running == True:
 
                                 if player.rect.x > enemy.rect.x:
                                     if player.rect.y != enemy.rect.y:
-                                        enemy.move(-1.4*HknockbackS*galeMultiplier, 0, walls, waters, enemies, player)
+                                        enemy.move(-1.4*HknockbackS*galeMultiplier, 0, walls, pillars, enemies, player)
                                         if player.rect.y < enemy.rect.y:
-                                            enemy.move(0, 1.4*HknockbackS*galeMultiplier, walls, waters, enemies, player)
+                                            enemy.move(0, 1.4*HknockbackS*galeMultiplier, walls, pillars, enemies, player)
                                         if player.rect.y > enemy.rect.y:
-                                            enemy.move(0, -1.4*HknockbackS*galeMultiplier, walls, waters, enemies, player)
+                                            enemy.move(0, -1.4*HknockbackS*galeMultiplier, walls, pillars, enemies, player)
                                     else:
-                                        enemy.move(-2*HknockbackS*galeMultiplier, 0, walls, waters, enemies, player)
+                                        enemy.move(-2*HknockbackS*galeMultiplier, 0, walls, pillars, enemies, player)
                                 if player.rect.x < enemy.rect.x:
                                     if player.rect.y != enemy.rect.y:
-                                        enemy.move(1.4*HknockbackS*galeMultiplier, 0, walls, waters, enemies, player)
+                                        enemy.move(1.4*HknockbackS*galeMultiplier, 0, walls, pillars, enemies, player)
                                         if player.rect.y < enemy.rect.y:
-                                            enemy.move(0, 1.4*HknockbackS*galeMultiplier, walls, waters, enemies, player)
+                                            enemy.move(0, 1.4*HknockbackS*galeMultiplier, walls, pillars, enemies, player)
                                         if player.rect.y > enemy.rect.y:
-                                            enemy.move(0, -1.4*HknockbackS*galeMultiplier, walls, waters, enemies, player)
+                                            enemy.move(0, -1.4*HknockbackS*galeMultiplier, walls, pillars, enemies, player)
                                     else:
-                                        enemy.move(2*HknockbackS*galeMultiplier, 0, walls, waters, enemies, player)
+                                        enemy.move(2*HknockbackS*galeMultiplier, 0, walls, pillars, enemies, player)
                                 else:
                                     if player.rect.y < enemy.rect.y:
-                                        enemy.move(0, 2*HknockbackS*galeMultiplier, walls, waters, enemies, player)
+                                        enemy.move(0, 2*HknockbackS*galeMultiplier, walls, pillars, enemies, player)
                                     if player.rect.y > enemy.rect.y:
-                                        enemy.move(0, -2*HknockbackS*galeMultiplier, walls, waters, enemies, player)
+                                        enemy.move(0, -2*HknockbackS*galeMultiplier, walls, pillars, enemies, player)
                                 HknockbackS = HknockbackS - 3
                     if enemy.previousAttackRecieved == "Special":
 
                         if player.rect.x > enemy.rect.x:
                             if player.rect.y != enemy.rect.y:
-                                enemy.move(0.6, 0, walls, waters, enemies, player)
+                                enemy.move(0.6, 0, walls, pillars, enemies, player)
                                 if player.rect.y < enemy.rect.y:
-                                    enemy.move(0, -0.6, walls, waters, enemies, player)
+                                    enemy.move(0, -0.6, walls, pillars, enemies, player)
                                 if player.rect.y > enemy.rect.y:
-                                    enemy.move(0, 0.6, walls, waters, enemies, player) 
+                                    enemy.move(0, 0.6, walls, pillars, enemies, player) 
                             else:
-                                enemy.move(0.9, 0, walls, waters, enemies, player)
+                                enemy.move(0.9, 0, walls, pillars, enemies, player)
                         if player.rect.x < enemy.rect.x:
                             if player.rect.y != enemy.rect.y:
-                                enemy.move(-0.6, 0, walls, waters, enemies, player)
+                                enemy.move(-0.6, 0, walls, pillars, enemies, player)
                                 if player.rect.y < enemy.rect.y:
-                                    enemy.move(0, -0.6, walls, waters, enemies, player)
+                                    enemy.move(0, -0.6, walls, pillars, enemies, player)
                                 if player.rect.y > enemy.rect.y:
-                                    enemy.move(0, 0.6, walls, waters, enemies, player) 
+                                    enemy.move(0, 0.6, walls, pillars, enemies, player) 
                             else:
-                                enemy.move(-0.9, 0, walls, waters, enemies, player)
+                                enemy.move(-0.9, 0, walls, pillars, enemies, player)
                         else:
                             if player.rect.y < enemy.rect.y:
-                                enemy.move(0, -0.9, walls, waters, enemies, player)
+                                enemy.move(0, -0.9, walls, pillars, enemies, player)
                             if player.rect.y > enemy.rect.y:
-                                enemy.move(0, 0.9, walls, waters, enemies, player)
+                                enemy.move(0, 0.9, walls, pillars, enemies, player)
                     
                 else:
                     if enemy.attacking == False:
 
                         if player.rect.x > enemy.rect.x:
                             if player.rect.y != enemy.rect.y:
-                                enemy.move(2, 0, walls, waters, enemies, player)
+                                enemy.move(2, 0, walls, pillars, enemies, player)
                                 if player.rect.y < enemy.rect.y:
-                                    enemy.move(0, -2, walls, waters, enemies, player)
+                                    enemy.move(0, -2, walls, pillars, enemies, player)
                                 if player.rect.y > enemy.rect.y:
-                                    enemy.move(0, 2, walls, waters, enemies, player) 
+                                    enemy.move(0, 2, walls, pillars, enemies, player) 
                             else:
-                                enemy.move(3, 0, walls, waters, enemies, player)
+                                enemy.move(3, 0, walls, pillars, enemies, player)
                         elif player.rect.x < enemy.rect.x:
                             if player.rect.y != enemy.rect.y:
-                                enemy.move(-2, 0, walls, waters, enemies, player)
+                                enemy.move(-2, 0, walls, pillars, enemies, player)
                                 if player.rect.y < enemy.rect.y:
-                                    enemy.move(0, -2, walls, waters, enemies, player)
+                                    enemy.move(0, -2, walls, pillars, enemies, player)
                                 if player.rect.y > enemy.rect.y:
-                                    enemy.move(0, 2, walls, waters, enemies, player) 
+                                    enemy.move(0, 2, walls, pillars, enemies, player) 
                             else:
-                                enemy.move(-3, 0, walls, waters, enemies, player)
+                                enemy.move(-3, 0, walls, pillars, enemies, player)
                         else:
                             if player.rect.y < enemy.rect.y:
-                                enemy.move(0, -3, walls, waters, enemies, player)
+                                enemy.move(0, -3, walls, pillars, enemies, player)
                             if player.rect.y > enemy.rect.y:
-                                enemy.move(0, 3, walls, waters, enemies, player)
+                                enemy.move(0, 3, walls, pillars, enemies, player)
             
             
 
@@ -1152,8 +1280,8 @@ while running == True:
             for wall in walls:
                 if Sattack.rect.colliderect(wall):
                     Scollision = True
-            for water in waters:
-                if Sattack.rect.colliderect(water):
+            for pillar in pillars:
+                if Sattack.rect.colliderect(pillar):
                     Scollision = True
             #if it hasn't hit anything:
             if Scollision == False:
@@ -1186,6 +1314,7 @@ while running == True:
                 #grows the special attack hitbox
                 Sattack.rect.height = Sattack.rect.height + 2
                 Sattack.rect.width = Sattack.rect.width + 2
+                SpecialSpriteGrowth = SpecialSpriteGrowth + 2
                 #keeps the position centered whilst growing
                 Sattack.rect.x = Sattack.rect.x - 1
                 Sattack.rect.y = Sattack.rect.y -1
@@ -1253,7 +1382,7 @@ while running == True:
 
         #text rendering
         scoreText = font.render(f"Score: {Score}", True, (225, 225, 225))
-        moneyText = font.render(f"Money: {Money}", True, (200, 150, 0))
+        moneyText = font.render(f"Money: {Money}", True, (250, 200, 0))
         purchasedText = smallfont.render(f"You have already purchased this", True, (255, 255, 255))
 
         if galeBought == True:
@@ -1389,8 +1518,7 @@ while running == True:
         
         
 
-    playerFacingX = "Neutral"
-    playerFacingY = "Neutral"    
+    
 
     #stops menu inputs registering multiple times
     if menuCooldown > 0:
@@ -1402,10 +1530,13 @@ while running == True:
     if gameState != "playing" and gameState != "paused":
         drawMenus()
     elif gameState == "paused":
-        drawScreen(60, 60, 60,walls, waters)
+        drawScreen(60, 60, 60,walls, pillars)
         drawMenus()
     else:
-        drawScreen(60, 60, 60, walls, waters)
+        drawScreen(60, 60, 60, walls, pillars)
+
+    playerFacingX = "Neutral"
+    playerFacingY = "Neutral"
     
 
 
