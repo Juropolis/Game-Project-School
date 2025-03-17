@@ -1,5 +1,5 @@
 MagicalPigTest,143700
 Jarumpski,134900
-Overachiever,6000
-Hobby,5900
-MrTest-a-lot,1200
+MyFinalTesting,107000
+John Pork,105300
+VideoTest,99700

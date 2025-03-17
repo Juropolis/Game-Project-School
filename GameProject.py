@@ -797,7 +797,10 @@ while running == True:
         
         #heal ability
         if userInput[pygame.K_h] and currentTime > healCooldown and player.health < 100:
-            player.health = player.health + 30
+            if player.health < 70:
+                player.health = player.health + 30
+            else: 
+                player.health = 100
             healCooldown = currentTime + healCooldownTime
 
                 
